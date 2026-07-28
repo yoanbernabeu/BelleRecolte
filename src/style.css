@@ -1249,6 +1249,8 @@ button:disabled { cursor: not-allowed; }
 .coach-bubble {
   position: absolute;
   width: 330px;
+  max-height: calc(100vh - 28px);
+  overflow-y: auto;
   background: linear-gradient(168deg, rgba(32, 39, 45, 0.99), rgba(20, 25, 29, 0.99));
   border: 1px solid var(--hairline);
   border-radius: 5px;

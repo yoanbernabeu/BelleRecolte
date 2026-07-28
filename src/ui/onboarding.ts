@@ -291,8 +291,15 @@ export class Coach {
     buttons.append(skip, next)
     this.bubble.append(buttons)
 
-    // Placement de la bulle, recadré pour ne jamais sortir de l'écran
+    // Placement de la bulle, recadré pour ne jamais sortir de l'écran.
+    // La hauteur est mesurée après remplissage : les dernières étapes visent
+    // des cibles collées au bas de l'écran, et sans ce recadrage les boutons
+    // finissent sous la ligne de flottaison, hors de portée.
+    const margin = 14
     const bubbleWidth = 330
+    this.bubble.style.transform = ''
+    const bubbleHeight = this.bubble.offsetHeight
+
     let left = rect.left + rect.width / 2 - bubbleWidth / 2
     let top: number
     switch (step.placement) {
@@ -300,8 +307,7 @@ export class Coach {
         top = rect.bottom + 18
         break
       case 'above':
-        top = rect.top - 18
-        this.bubble.style.transform = 'translateY(-100%)'
+        top = rect.top - 18 - bubbleHeight
         break
       case 'right':
         left = rect.right + 18
@@ -311,9 +317,11 @@ export class Coach {
         left = rect.left - bubbleWidth - 18
         top = rect.top
     }
-    if (step.placement !== 'above') this.bubble.style.transform = ''
-    this.bubble.style.left = `${Math.max(14, Math.min(left, window.innerWidth - bubbleWidth - 14))}px`
-    this.bubble.style.top = `${Math.max(14, top)}px`
+
+    const maxLeft = window.innerWidth - bubbleWidth - margin
+    const maxTop = window.innerHeight - bubbleHeight - margin
+    this.bubble.style.left = `${Math.max(margin, Math.min(left, maxLeft))}px`
+    this.bubble.style.top = `${Math.max(margin, Math.min(top, maxTop))}px`
   }
 
   private finish(): void {
