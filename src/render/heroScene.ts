@@ -121,11 +121,14 @@ export function mountHeroScene(container: HTMLElement): HeroScene {
 
   // Une vue rasante et lente : on veut donner envie d'entrer dans le paysage,
   // pas simuler un survol de drone.
-  // Le bandeau est large et le texte occupe sa moitié gauche : on cadre donc
-  // la ferme légèrement à droite du centre, et d'assez loin pour qu'elle tienne
-  // entière quelle que soit la proportion de l'écran.
-  viewport.camera.position.set(96, 62, 124)
-  viewport.controls.target.set(16, 2, -4)
+  // Le texte occupe le centre de l'image : on cadre la ferme d'assez loin et
+  // d'assez haut pour qu'elle déborde de part et d'autre de la clairière, et
+  // que ce soit le parcellaire — pas le ciel — qui remplisse les bords.
+  // La cible est volontairement au-dessus du sol : la caméra vise plus haut,
+  // la ferme descend dans le cadre et vient se poser sous le bloc de texte au
+  // lieu d'être cachée derrière.
+  viewport.camera.position.set(102, 72, 132)
+  viewport.controls.target.set(0, 26, 4)
   viewport.controls.autoRotate = true
   viewport.controls.autoRotateSpeed = 0.3
   viewport.controls.enableZoom = false

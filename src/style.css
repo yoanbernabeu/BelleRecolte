@@ -1178,7 +1178,15 @@ button:disabled { cursor: not-allowed; }
   color: var(--wheat-faint);
   font-style: italic;
 }
-.briefing-go { margin-top: 20px; width: 100%; }
+/* Bouton de sortie du mémo : dimensionné sur son texte et posé à droite,
+   comme la validation d'une boîte de dialogue. Pleine largeur, il pesait plus
+   lourd que les quatre tuiles qu'il conclut. */
+.briefing-go {
+  display: block;
+  margin: 24px 0 0 auto;
+  width: auto;
+  padding: 14px 34px;
+}
 
 /* ---- ventilation des charges en fin de campagne */
 
@@ -1391,11 +1399,12 @@ body.is-playing #landing { display: none; }
 
 .lp-hero {
   position: relative;
-  min-height: min(92vh, 860px);
+  min-height: min(100vh, 940px);
   display: grid;
   grid-template-rows: auto 1fr auto;
   overflow: hidden;
   isolation: isolate;
+  text-align: center;
 }
 
 .lp-stage {
@@ -1429,16 +1438,19 @@ body.is-playing #landing { display: none; }
   inset: 0;
   z-index: -1;
   pointer-events: none;
+  /* Composition centrée : les voiles deviennent symétriques. Une clairière
+     radiale au milieu porte le texte, deux dégradés raccordent le haut et le
+     bas au papier, et les bords restent dégagés pour qu'on voie le paysage. */
   background:
-    linear-gradient(180deg, rgba(242, 235, 219, 0.92) 0%, rgba(242, 235, 219, 0) 20%),
-    linear-gradient(0deg, var(--paper) 2%, rgba(242, 235, 219, 0.55) 16%, rgba(242, 235, 219, 0) 40%),
-    linear-gradient(
-      100deg,
-      rgba(242, 235, 219, 0.97) 0%,
-      rgba(242, 235, 219, 0.93) 38%,
-      rgba(242, 235, 219, 0.62) 62%,
-      rgba(242, 235, 219, 0) 84%
-    );
+    radial-gradient(
+      ellipse 56% 56% at 50% 44%,
+      rgba(242, 235, 219, 0.9) 0%,
+      rgba(242, 235, 219, 0.82) 42%,
+      rgba(242, 235, 219, 0.4) 74%,
+      rgba(242, 235, 219, 0) 100%
+    ),
+    linear-gradient(180deg, rgba(242, 235, 219, 0.9) 0%, rgba(242, 235, 219, 0) 20%),
+    linear-gradient(0deg, var(--paper) 1%, rgba(242, 235, 219, 0.5) 12%, rgba(242, 235, 219, 0) 34%);
 }
 
 /* ---- en-tête */
@@ -1494,10 +1506,13 @@ body.is-playing #landing { display: none; }
 
 .lp-hero-text {
   width: 100%;
-  max-width: 1240px;
+  max-width: 860px;
   margin: 0 auto;
   padding: 0 40px 20px;
   align-self: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .lp-eyebrow {
@@ -1529,17 +1544,17 @@ body.is-playing #landing { display: none; }
   font-family: var(--font-display);
   /* Le titre est le seul élément autorisé à devenir énorme : c'est lui qui
      porte le ton, et il doit rivaliser avec un paysage plein écran. */
-  font-size: clamp(46px, 7.4vw, 104px);
+  font-size: clamp(46px, 7vw, 98px);
   font-weight: 600;
   font-variation-settings: 'SOFT' 60, 'WONK' 1;
-  line-height: 0.94;
+  line-height: 0.96;
   letter-spacing: -0.038em;
   margin: 0;
-  max-width: 13ch;
+  max-width: 15ch;
   color: var(--ink);
   /* Un halo de papier plutôt qu'une ombre portée : le titre se détache du
      paysage sans prendre l'air posé dessus. */
-  text-shadow: 0 1px 26px rgba(242, 235, 219, 0.85);
+  text-shadow: 0 1px 30px rgba(242, 235, 219, 0.9);
 }
 .lp-hero h1 em {
   font-style: italic;
@@ -1552,12 +1567,16 @@ body.is-playing #landing { display: none; }
   line-height: 1.62;
   color: var(--ink-soft);
   margin: 24px 0 0;
-  max-width: 46ch;
+  max-width: 58ch;
+  text-wrap: balance;
 }
 
-/* ---- formulaire de départ */
+/* ---- formulaire de départ
 
-.lp-start { margin-top: 30px; max-width: 470px; }
+   Centré et resserré : sur une composition symétrique, un formulaire large
+   déséquilibre tout ce qui est au-dessus. */
+
+.lp-start { margin-top: 32px; width: 100%; max-width: 430px; }
 .lp-start-label {
   display: block;
   font-size: 11px;
@@ -1622,13 +1641,15 @@ body.is-playing #landing { display: none; }
 .lp-cta:active { transform: translateY(1px); }
 .lp-cta--large { width: auto; margin: 30px auto 0; padding: 20px 54px; font-size: 15px; }
 
-.lp-start-help { font-size: 12.5px; color: var(--ink-faint); margin: 13px 0 0; line-height: 1.55; }
+/* Posé sur le paysage, un gris trop clair disparaît dans les verts : ce texte
+   prend donc l'encre douce, pas la teinte effacée du reste des mentions. */
+.lp-start-help { font-size: 12.5px; color: var(--ink-soft); margin: 13px 0 0; line-height: 1.55; }
 
 .lp-hero-caption {
   width: 100%;
-  max-width: 1240px;
+  max-width: 620px;
   margin: 0 auto;
-  padding: 0 40px 26px;
+  padding: 0 40px 30px;
   font-size: 12px;
   color: var(--ink-faint);
   font-style: italic;
