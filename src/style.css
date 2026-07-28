@@ -1315,29 +1315,57 @@ button:disabled { cursor: not-allowed; }
 /* ================================================================
    PAGE D'ACCUEIL
 
-   Le corps de page défile ici, contrairement au jeu où tout est fixe.
-   Les deux états cohabitent via la classe `is-playing` sur <body>.
+   Direction : l'almanach agricole. Papier crème, encre sépia, filets
+   d'imprimeur, or de moisson. C'est l'exact opposé de l'interface de jeu —
+   verre sombre et laiton — et c'est voulu : la page d'accueil raconte la
+   terre, le jeu raconte la salle de commande.
+
+   Le paysage n'est plus enfermé dans une vignette : il occupe tout le haut
+   de l'écran, et le titre s'y pose dessus. On ne vend pas un logiciel de
+   gestion, on vend une plaine au mois de mai.
    ================================================================ */
 
+/* La page d'accueil défile, le jeu est fixe. Les deux états cohabitent via la
+   classe `is-playing` posée sur <body>. */
 body:not(.is-playing) { overflow-y: auto; overflow-x: hidden; }
 body.is-playing #landing { display: none; }
 
 #landing {
+  /* Papier : la couleur porte tout le reste, elle est déclarée ici et pas
+     dans :root pour que l'écran de jeu garde son encre sombre. */
+  --paper: #f2ebdb;
+  --paper-deep: #e7ddc7;
+  --ink: #221b12;
+  --ink-soft: #5a4c3a;
+  --ink-faint: #8b7c66;
+  --gold: #b8862a;
+  --gold-bright: #e0a93c;
+  --field: #4e7136;
+  --rust: #a8452a;
+  --rule: rgba(34, 27, 18, 0.16);
+  --rule-soft: rgba(34, 27, 18, 0.09);
+
   position: relative;
   min-height: 100%;
-  /* Les halos donnent au fond un relief que l'aplat quasi noir n'avait pas :
-     sans eux, la page se lit comme un document, pas comme un paysage. */
-  background:
-    radial-gradient(ellipse 100% 70% at 72% -8%, rgba(217, 164, 65, 0.16), transparent 58%),
-    radial-gradient(ellipse 80% 55% at 8% 42%, rgba(143, 184, 101, 0.09), transparent 55%),
-    radial-gradient(ellipse 90% 60% at 55% 112%, rgba(111, 146, 178, 0.08), transparent 58%),
-    #10151a;
+  background: var(--paper);
+  color: var(--ink);
   transition: opacity 0.45s ease;
-  /* Corps de texte : un cran au-dessus du gris d'origine, qui passait tout
-     juste le contraste minimal sur ce fond. */
-  --wheat-dim: #c4bba7;
-  --wheat-faint: #8f8676;
 }
+
+/* Grain de papier : un bruit fin, en superposition, qui empêche les aplats
+   de paraître numériques. Sans lui, le crème sonne « fond CSS ». */
+#landing::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.5;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='0.35'/%3E%3C/svg%3E");
+  mix-blend-mode: multiply;
+}
+#landing > * { position: relative; z-index: 1; }
+
 #landing.is-leaving { opacity: 0; pointer-events: none; }
 #app[hidden] { display: none; }
 
@@ -1354,6 +1382,65 @@ body.is-playing #landing { display: none; }
   z-index: 50;
 }
 
+/* ---------------------------------------------------------------- héros
+
+   Le paysage occupe la fenêtre entière ; le contenu se pose dessus. Une
+   double garde assure la lisibilité du texte : un dégradé vertical côté
+   gauche, et un voile de papier qui remonte du bas pour raccorder au reste
+   de la page sans couture visible. */
+
+.lp-hero {
+  position: relative;
+  min-height: min(92vh, 860px);
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.lp-stage {
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  background: linear-gradient(180deg, #9dc0d8 0%, #cfd9c8 55%, #a8b98a 100%);
+}
+.lp-stage img,
+.lp-stage canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+/* La scène 3D se substitue à la capture en fondu ; l'image reste dessous et
+   sert de repli si le chargement traîne, échoue, ou si la scène se met en
+   veille hors écran. */
+.lp-stage-live {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 1.1s ease;
+}
+.lp-hero.is-live .lp-stage-live { opacity: 1; }
+
+/* Voiles de lisibilité, empilés du plus large au plus serré. */
+.lp-hero::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    linear-gradient(180deg, rgba(242, 235, 219, 0.92) 0%, rgba(242, 235, 219, 0) 20%),
+    linear-gradient(0deg, var(--paper) 2%, rgba(242, 235, 219, 0.55) 16%, rgba(242, 235, 219, 0) 40%),
+    linear-gradient(
+      100deg,
+      rgba(242, 235, 219, 0.97) 0%,
+      rgba(242, 235, 219, 0.93) 38%,
+      rgba(242, 235, 219, 0.62) 62%,
+      rgba(242, 235, 219, 0) 84%
+    );
+}
+
 /* ---- en-tête */
 
 .lp-header {
@@ -1361,537 +1448,613 @@ body.is-playing #landing { display: none; }
   align-items: center;
   justify-content: space-between;
   gap: 24px;
-  max-width: 1180px;
+  width: 100%;
+  max-width: 1240px;
   margin: 0 auto;
-  padding: 26px 32px;
+  padding: 26px 40px;
 }
 .lp-brand {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 11px;
   font-family: var(--font-display);
-  font-size: 19px;
-  font-weight: 600;
-  font-variation-settings: 'SOFT' 20, 'WONK' 1;
-  color: var(--wheat);
-  text-decoration: none;
-}
-.lp-brand-mark { font-size: 21px; }
-.lp-nav { display: flex; gap: 26px; }
-.lp-nav a {
-  font-size: 10.5px;
-  text-transform: uppercase;
-  letter-spacing: 0.14em;
+  font-size: 20px;
   font-weight: 700;
-  color: var(--brass-dim);
+  font-variation-settings: 'SOFT' 40, 'WONK' 1;
+  letter-spacing: -0.015em;
+  color: var(--ink);
   text-decoration: none;
-  transition: color 0.18s;
 }
-.lp-nav a:hover { color: var(--brass-bright); }
+.lp-brand-mark { font-size: 22px; }
+.lp-nav { display: flex; gap: 28px; }
+.lp-nav a {
+  position: relative;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: var(--ink-soft);
+  text-decoration: none;
+  padding-bottom: 3px;
+}
+/* Soulignement qui pousse depuis la gauche, comme un trait de crayon. */
+.lp-nav a::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 100%;
+  bottom: 0;
+  height: 1.5px;
+  background: var(--gold);
+  transition: right 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.lp-nav a:hover { color: var(--ink); }
+.lp-nav a:hover::after { right: 0; }
 
-/* ---- héros */
+/* ---- bloc d'accroche */
 
-.lp-hero {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr);
-  gap: 56px;
-  align-items: center;
-  max-width: 1180px;
+.lp-hero-text {
+  width: 100%;
+  max-width: 1240px;
   margin: 0 auto;
-  padding: 40px 32px 88px;
+  padding: 0 40px 20px;
+  align-self: center;
 }
 
 .lp-eyebrow {
-  font-size: 10px;
-  text-transform: uppercase;
-  letter-spacing: 0.2em;
-  font-weight: 700;
-  color: var(--brass-dim);
-  margin: 0 0 18px;
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  margin: 0 0 22px;
+  padding: 6px 14px 6px 11px;
+  border: 1px solid var(--rule);
+  border-radius: 100px;
+  background: rgba(255, 253, 247, 0.6);
+  backdrop-filter: blur(6px);
+  font-size: 11.5px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  color: var(--ink-soft);
+}
+.lp-eyebrow b { color: var(--ink); font-weight: 700; }
+.lp-eyebrow::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--field);
+  box-shadow: 0 0 0 3px rgba(78, 113, 54, 0.22);
 }
 
 .lp-hero h1 {
   font-family: var(--font-display);
-  font-size: clamp(38px, 5vw, 62px);
+  /* Le titre est le seul élément autorisé à devenir énorme : c'est lui qui
+     porte le ton, et il doit rivaliser avec un paysage plein écran. */
+  font-size: clamp(46px, 7.4vw, 104px);
   font-weight: 600;
-  font-variation-settings: 'SOFT' 40, 'WONK' 1;
-  line-height: 1.03;
-  letter-spacing: -0.025em;
+  font-variation-settings: 'SOFT' 60, 'WONK' 1;
+  line-height: 0.94;
+  letter-spacing: -0.038em;
   margin: 0;
-  background: linear-gradient(168deg, var(--wheat) 34%, var(--brass));
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
+  max-width: 13ch;
+  color: var(--ink);
+  /* Un halo de papier plutôt qu'une ombre portée : le titre se détache du
+     paysage sans prendre l'air posé dessus. */
+  text-shadow: 0 1px 26px rgba(242, 235, 219, 0.85);
+}
+.lp-hero h1 em {
+  font-style: italic;
+  font-variation-settings: 'SOFT' 90, 'WONK' 1;
+  color: var(--gold);
 }
 
 .lp-lede {
-  font-size: 16px;
-  line-height: 1.7;
-  color: var(--wheat-dim);
-  margin: 22px 0 0;
-  max-width: 52ch;
+  font-size: clamp(15.5px, 1.35vw, 18px);
+  line-height: 1.62;
+  color: var(--ink-soft);
+  margin: 24px 0 0;
+  max-width: 46ch;
 }
 
-.lp-start { margin-top: 34px; max-width: 430px; }
+/* ---- formulaire de départ */
+
+.lp-start { margin-top: 30px; max-width: 470px; }
 .lp-start-label {
   display: block;
-  font-size: 9.5px;
-  text-transform: uppercase;
-  letter-spacing: 0.16em;
-  color: var(--brass-dim);
+  font-size: 11px;
   font-weight: 700;
-  margin-bottom: 8px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  margin-bottom: 9px;
 }
-.lp-start-row { display: flex; gap: 9px; }
+.lp-start-row { display: flex; gap: 8px; }
 .lp-seed {
   flex: 1;
   min-width: 0;
   font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
   font-size: 15px;
-  letter-spacing: 0.11em;
-  padding: 13px 15px;
+  letter-spacing: 0.09em;
+  padding: 15px 16px;
   border-radius: 3px;
-  border: 1px solid var(--hairline);
-  background: rgba(9, 12, 14, 0.7);
-  color: var(--brass-bright);
+  border: 1px solid var(--rule);
+  background: rgba(255, 253, 247, 0.82);
+  color: var(--ink);
   text-transform: uppercase;
+  transition: border-color 0.18s, box-shadow 0.18s;
 }
-.lp-seed:focus { outline: none; border-color: var(--brass); box-shadow: 0 0 0 3px rgba(217, 164, 65, 0.14); }
+.lp-seed:focus {
+  outline: none;
+  border-color: var(--gold);
+  box-shadow: 0 0 0 3px rgba(184, 134, 42, 0.16);
+}
 .lp-reroll {
-  width: 48px;
+  width: 50px;
   border-radius: 3px;
-  border: 1px solid var(--hairline);
-  background: rgba(240, 231, 214, 0.05);
-  color: var(--wheat-dim);
-  font-size: 17px;
-  transition: background 0.18s, color 0.18s;
+  border: 1px solid var(--rule);
+  background: rgba(255, 253, 247, 0.82);
+  color: var(--ink-soft);
+  font-size: 18px;
+  transition: background 0.18s, color 0.18s, transform 0.3s;
 }
-.lp-reroll:hover { background: rgba(217, 164, 65, 0.14); color: var(--brass-bright); }
+.lp-reroll:hover { background: var(--gold); color: #fffdf7; border-color: var(--gold); transform: rotate(180deg); }
 
+/* Le bouton principal : encre pleine, pas de dégradé. Un aplat sombre sur du
+   papier crème se voit de plus loin qu'un dégradé doré sur fond sombre. */
 .lp-cta {
   display: block;
   width: 100%;
-  margin-top: 12px;
-  padding: 17px 30px;
-  background: linear-gradient(175deg, var(--brass-bright), var(--brass) 55%, var(--brass-dim));
-  color: #211a0d;
+  margin-top: 10px;
+  padding: 18px 30px;
+  background: var(--ink);
+  color: #f7f2e6;
   font-weight: 700;
-  font-size: 13.5px;
-  text-transform: uppercase;
-  letter-spacing: 0.13em;
+  font-size: 14px;
+  letter-spacing: 0.055em;
   border-radius: 3px;
-  box-shadow: 0 10px 30px rgba(217, 164, 65, 0.24);
-  transition: filter 0.18s, transform 0.12s, box-shadow 0.18s;
+  box-shadow: 0 10px 26px rgba(34, 27, 18, 0.22);
+  transition: background 0.2s, transform 0.14s, box-shadow 0.2s;
 }
-.lp-cta:hover { filter: brightness(1.1); box-shadow: 0 14px 38px rgba(217, 164, 65, 0.34); }
+.lp-cta:hover {
+  background: var(--gold);
+  box-shadow: 0 14px 34px rgba(184, 134, 42, 0.34);
+  transform: translateY(-1px);
+}
 .lp-cta:active { transform: translateY(1px); }
-.lp-cta--large { width: auto; margin: 26px auto 0; padding: 18px 46px; font-size: 14px; }
+.lp-cta--large { width: auto; margin: 30px auto 0; padding: 20px 54px; font-size: 15px; }
 
-.lp-start-help { font-size: 12px; color: var(--wheat-faint); margin: 12px 0 0; line-height: 1.6; }
-
-.lp-hero-frame {
-  border-radius: 6px;
-  overflow: hidden;
-  border: 1px solid var(--hairline);
-  box-shadow: 0 34px 80px rgba(0, 0, 0, 0.55);
-  position: relative;
-  aspect-ratio: 1200 / 630;
-}
-.lp-hero-frame::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  /* Juste assez pour asseoir le cadre dans la page — au-delà, on assombrit le
-     paysage qu'on est justement venu montrer. */
-  background: linear-gradient(200deg, transparent 68%, rgba(14, 18, 22, 0.3));
-  pointer-events: none;
-  z-index: 2;
-}
-.lp-hero-frame img { display: block; width: 100%; height: 100%; object-fit: cover; }
-
-/* La scène 3D se pose par-dessus la capture et apparaît en fondu. L'image reste
-   en place dessous : si le chargement traîne, échoue, ou si la scène se met en
-   veille hors écran, c'est elle qu'on retrouve — jamais un cadre vide. */
-.lp-hero-stage {
-  position: absolute;
-  inset: 0;
-  opacity: 0;
-  transition: opacity 0.9s ease;
-}
-.lp-hero-stage canvas { display: block; width: 100%; height: 100%; }
-.lp-hero-frame.is-live .lp-hero-stage { opacity: 1; }
+.lp-start-help { font-size: 12.5px; color: var(--ink-faint); margin: 13px 0 0; line-height: 1.55; }
 
 .lp-hero-caption {
-  margin: 14px 2px 0;
-  font-size: 12.5px;
-  line-height: 1.6;
-  color: var(--wheat-faint);
+  width: 100%;
+  max-width: 1240px;
+  margin: 0 auto;
+  padding: 0 40px 26px;
+  font-size: 12px;
+  color: var(--ink-faint);
+  font-style: italic;
 }
 
-/* ---- chiffres clés */
+/* ---------------------------------------------------------------- chiffres
+
+   Quatre chiffres séparés par des filets verticaux, comme une ligne de
+   colophon. Pas de cartes : le papier n'a pas besoin de boîtes. */
 
 .lp-figures {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
-  gap: 1px;
-  max-width: 1180px;
+  max-width: 1240px;
   margin: 0 auto;
-  padding: 0 32px;
-  background: transparent;
+  padding: 0 40px;
+  border-top: 1px solid var(--rule);
+  border-bottom: 1px solid var(--rule);
 }
-.lp-figures > div {
-  padding: 26px 4px 30px;
-  border-top: 1px solid var(--hairline-soft);
-  border-bottom: 1px solid var(--hairline-soft);
-}
+.lp-figures > div { padding: 30px 8px 32px; }
+.lp-figures > div + div { border-left: 1px solid var(--rule-soft); padding-left: 26px; }
 .lp-figures strong {
   display: block;
   font-family: var(--font-display);
-  font-size: 40px;
+  font-size: 46px;
   font-weight: 600;
-  font-variation-settings: 'SOFT' 30, 'WONK' 1;
+  font-variation-settings: 'SOFT' 40, 'WONK' 1;
   line-height: 1;
-  letter-spacing: -0.03em;
-  color: var(--brass);
+  letter-spacing: -0.035em;
+  color: var(--gold);
 }
 .lp-figures strong i {
   font-style: normal;
-  font-size: 17px;
-  margin-left: 3px;
-  color: var(--brass-dim);
+  font-size: 18px;
+  margin-left: 4px;
+  color: var(--ink-faint);
 }
 .lp-figures span {
   display: block;
-  margin-top: 10px;
-  font-size: 12.5px;
-  line-height: 1.5;
-  color: var(--wheat-dim);
+  margin-top: 11px;
+  font-size: 13px;
+  line-height: 1.45;
+  color: var(--ink-soft);
 }
 
-/* ---- sections */
+/* ---------------------------------------------------------------- sections */
 
 .lp-section {
-  max-width: 1180px;
+  max-width: 1240px;
   margin: 0 auto;
-  padding: 78px 32px;
-  border-top: 1px solid var(--hairline-soft);
+  padding: 92px 40px;
 }
-.lp-section--tight { padding-bottom: 56px; }
+.lp-section + .lp-section { border-top: 1px solid var(--rule-soft); }
+.lp-section--tight { padding-bottom: 64px; }
 
 .lp-section h2 {
   font-family: var(--font-display);
-  font-size: clamp(26px, 3vw, 36px);
+  font-size: clamp(30px, 3.9vw, 50px);
   font-weight: 600;
-  font-variation-settings: 'SOFT' 30, 'WONK' 1;
-  letter-spacing: -0.018em;
-  margin: 0 0 14px;
-  color: var(--wheat);
+  font-variation-settings: 'SOFT' 45, 'WONK' 1;
+  letter-spacing: -0.028em;
+  line-height: 1.04;
+  margin: 0 0 16px;
+  max-width: 20ch;
+  color: var(--ink);
 }
-.lp-section-lede { font-size: 15.5px; line-height: 1.7; color: var(--wheat-dim); max-width: 64ch; margin: 0 0 36px; }
+.lp-section h2 em { font-style: italic; color: var(--gold); font-variation-settings: 'SOFT' 80, 'WONK' 1; }
+.lp-section-lede {
+  font-size: 16px;
+  line-height: 1.68;
+  color: var(--ink-soft);
+  max-width: 58ch;
+  margin: 0;
+}
 
-.lp-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(255px, 1fr));
-  gap: 18px;
-  margin-top: 34px;
-}
-.lp-card {
-  background: rgba(240, 231, 214, 0.035);
-  border: 1px solid var(--hairline-soft);
-  border-left: 2px solid var(--brass-dim);
-  border-radius: 3px;
-  padding: 22px 24px;
-  transition: border-left-color 0.2s, background 0.2s, transform 0.2s;
-}
-.lp-card:hover { background: rgba(240, 231, 214, 0.06); border-left-color: var(--brass); transform: translateY(-2px); }
-.lp-card h3 {
-  font-family: var(--font-display);
-  font-size: 17px;
-  font-weight: 600;
-  font-variation-settings: 'SOFT' 20, 'WONK' 1;
-  margin: 0 0 9px;
-  color: var(--wheat);
-}
-.lp-card p { font-size: 14px; line-height: 1.68; color: var(--wheat-dim); margin: 0; }
-
-/* ---- déroulé de la campagne
-
-   Une frise plutôt qu'un paragraphe : le calendrier agricole se comprend d'un
-   coup d'œil, et se raconte très mal. */
+/* ---- frise de campagne */
 
 .lp-timeline {
   list-style: none;
-  margin: 34px 0 0;
+  margin: 46px 0 0;
   padding: 0;
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: 0;
-  counter-reset: step;
+  grid-template-columns: repeat(auto-fit, minmax(178px, 1fr));
 }
 .lp-timeline li {
   position: relative;
-  padding: 26px 18px 4px 0;
-  border-top: 1px solid var(--hairline-soft);
+  padding: 30px 20px 0 0;
+  border-top: 1px solid var(--rule);
 }
 .lp-timeline li::before {
   content: '';
   position: absolute;
-  top: -5px;
+  top: -5.5px;
   left: 0;
-  width: 9px;
-  height: 9px;
+  width: 10px;
+  height: 10px;
   border-radius: 50%;
-  background: var(--ink-900);
-  border: 2px solid var(--brass-dim);
+  background: var(--paper);
+  border: 2px solid var(--gold);
 }
-/* Le pic de la campagne : c'est en juillet que tout se décide. */
-.lp-timeline li.is-peak { border-top-color: var(--brass); }
-.lp-timeline li.is-peak::before { background: var(--brass); border-color: var(--brass); }
+.lp-timeline li.is-peak { border-top-color: var(--rust); border-top-width: 2px; }
+.lp-timeline li.is-peak::before { background: var(--rust); border-color: var(--rust); }
 .lp-timeline-when {
   display: block;
-  font-size: 10px;
-  text-transform: uppercase;
-  letter-spacing: 0.15em;
+  font-size: 11px;
   font-weight: 700;
-  color: var(--brass-dim);
-  margin-bottom: 7px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 9px;
 }
-.lp-timeline li.is-peak .lp-timeline-when { color: var(--brass-bright); }
+.lp-timeline li.is-peak .lp-timeline-when { color: var(--rust); }
 .lp-timeline-what {
   display: block;
   font-family: var(--font-display);
-  font-size: 16px;
+  font-size: 18px;
   font-weight: 600;
-  font-variation-settings: 'SOFT' 20, 'WONK' 1;
-  line-height: 1.25;
-  color: var(--wheat);
-  margin-bottom: 6px;
+  font-variation-settings: 'SOFT' 30, 'WONK' 1;
+  line-height: 1.2;
+  letter-spacing: -0.015em;
+  color: var(--ink);
+  margin-bottom: 8px;
 }
-.lp-timeline p { margin: 0; font-size: 13px; line-height: 1.55; color: var(--wheat-dim); }
+.lp-timeline p { margin: 0; font-size: 13.5px; line-height: 1.55; color: var(--ink-soft); }
 
-/* ---- ce qui peut mal tourner */
+/* ---- ce qui peut mal tourner
+
+   Vignettes d'almanach : filet fin, numéro en chiffre romain, et une teinte
+   de rouille qui ne hurle pas. Le contenu est déjà inquiétant, la forme n'a
+   pas besoin d'en rajouter. */
 
 .lp-risks {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 14px;
-  margin-top: 34px;
+  grid-template-columns: repeat(auto-fit, minmax(268px, 1fr));
+  gap: 0;
+  margin-top: 46px;
+  border-top: 1px solid var(--rule);
+  border-left: 1px solid var(--rule);
 }
 .lp-risks article {
-  padding: 18px 20px;
-  border: 1px solid var(--hairline-soft);
-  border-left: 2px solid var(--alarm);
-  border-radius: 3px;
-  background: rgba(224, 113, 74, 0.05);
-  transition: background 0.2s, transform 0.2s;
+  position: relative;
+  padding: 26px 26px 30px;
+  border-right: 1px solid var(--rule);
+  border-bottom: 1px solid var(--rule);
+  background: transparent;
+  transition: background 0.26s;
+  counter-increment: risk;
 }
-.lp-risks article:hover { background: rgba(224, 113, 74, 0.09); transform: translateY(-2px); }
-.lp-risks h3 {
-  margin: 0 0 7px;
+.lp-risks article:hover { background: rgba(168, 69, 42, 0.05); }
+.lp-risks article::before {
+  content: counter(risk, upper-roman);
+  display: block;
   font-family: var(--font-display);
-  font-size: 16px;
-  font-weight: 600;
-  font-variation-settings: 'SOFT' 20, 'WONK' 1;
-  color: var(--wheat);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  color: var(--rust);
+  margin-bottom: 12px;
 }
-.lp-risks p { margin: 0; font-size: 13px; line-height: 1.6; color: var(--wheat-dim); }
+.lp-risks { counter-reset: risk; }
+.lp-risks h3 {
+  margin: 0 0 9px;
+  font-family: var(--font-display);
+  font-size: 19px;
+  font-weight: 600;
+  font-variation-settings: 'SOFT' 30, 'WONK' 1;
+  letter-spacing: -0.018em;
+  color: var(--ink);
+}
+.lp-risks p { margin: 0; font-size: 13.5px; line-height: 1.62; color: var(--ink-soft); }
 
 /* ---- cultures */
 
 .lp-crops {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
-  gap: 14px;
+  grid-template-columns: repeat(auto-fit, minmax(228px, 1fr));
+  gap: 16px;
+  margin-top: 46px;
 }
 .lp-crop {
-  background: rgba(240, 231, 214, 0.035);
-  border: 1px solid var(--hairline-soft);
-  border-top: 2px solid var(--brass-dim);
+  position: relative;
+  padding: 20px 20px 22px;
+  border: 1px solid var(--rule);
   border-radius: 3px;
-  padding: 16px 18px;
-  transition: background 0.2s, transform 0.2s;
+  background: rgba(255, 253, 247, 0.55);
+  overflow: hidden;
+  transition: transform 0.24s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.24s;
 }
-.lp-crop:hover { background: rgba(240, 231, 214, 0.06); transform: translateY(-2px); }
-/* Cultures d'hiver en bleu froid, de printemps en vert : la distinction qui
-   structure toute la campagne se lit dès la page d'accueil. */
-.lp-crop--winter { border-top-color: #6f92b2; }
-.lp-crop--spring { border-top-color: var(--growth); }
+/* Bandeau de couleur de la culture, en haut de la fiche. */
+.lp-crop::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto;
+  height: 4px;
+  background: var(--crop, var(--gold));
+}
+.lp-crop:hover { transform: translateY(-3px); box-shadow: 0 12px 28px rgba(34, 27, 18, 0.1); }
+.lp-crop--winter { --season: #5d84a6; }
+.lp-crop--spring { --season: var(--field); }
 .lp-crop h3 {
   display: flex;
   align-items: center;
   gap: 9px;
+  margin: 6px 0 5px;
   font-family: var(--font-display);
-  font-size: 17px;
+  font-size: 17.5px;
   font-weight: 600;
-  font-variation-settings: 'SOFT' 20, 'WONK' 1;
-  margin: 0 0 4px;
-  color: var(--wheat);
+  font-variation-settings: 'SOFT' 25, 'WONK' 1;
+  letter-spacing: -0.015em;
+  color: var(--ink);
 }
-/* La pastille porte la couleur que la culture prend à l'écran, passée en
-   variable sur l'article. */
-.lp-crop-dot {
-  flex: none;
-  width: 11px;
-  height: 11px;
-  border-radius: 50%;
-  background: var(--crop, var(--brass));
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--crop, var(--brass)) 18%, transparent);
-}
+.lp-crop-dot { display: none; }
 .lp-crop-when {
-  font-size: 10px;
-  text-transform: uppercase;
-  letter-spacing: 0.12em;
+  display: inline-block;
+  font-size: 11px;
   font-weight: 700;
-  color: var(--brass-dim);
-  margin: 0 0 9px;
+  letter-spacing: 0.05em;
+  color: var(--season, var(--gold));
+  margin: 0 0 11px;
 }
-.lp-crop p:last-child { font-size: 12.5px; line-height: 1.55; color: var(--wheat-dim); margin: 0; }
+.lp-crop p:last-child { font-size: 13px; line-height: 1.58; color: var(--ink-soft); margin: 0; }
 
-/* ---- détail repliable */
+/* ---- sources et preuve */
 
-.lp-details { margin-top: 8px; }
+.lp-sources-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+  gap: 56px;
+  align-items: start;
+  margin-top: 34px;
+}
+.lp-sources { list-style: none; padding: 0; margin: 0; display: grid; gap: 14px; }
+.lp-sources li {
+  position: relative;
+  padding-left: 20px;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--ink-soft);
+}
+.lp-sources li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 10px;
+  width: 9px;
+  height: 1px;
+  background: var(--gold);
+}
+.lp-sources strong { color: var(--ink); font-weight: 700; }
+
+.lp-details { margin-top: 12px; }
 .lp-details summary {
   cursor: pointer;
-  font-size: 12px;
-  text-transform: uppercase;
-  letter-spacing: 0.13em;
+  font-size: 12.5px;
   font-weight: 700;
-  color: var(--brass-dim);
-  padding: 9px 0;
+  letter-spacing: 0.03em;
+  color: var(--gold);
+  padding: 10px 0;
   list-style: none;
   transition: color 0.16s;
 }
 .lp-details summary::-webkit-details-marker { display: none; }
 .lp-details summary::before { content: '+ '; }
 .lp-details[open] summary::before { content: '− '; }
-.lp-details summary:hover { color: var(--brass-bright); }
-.lp-details .lp-sources { margin-top: 14px; }
+.lp-details summary:hover { color: var(--ink); }
+.lp-details .lp-sources { margin-top: 16px; }
 
-/* ---- sources */
-
-.lp-sources-layout {
-  display: grid;
-  grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
-  gap: 48px;
-  align-items: start;
-}
-.lp-sources { list-style: none; padding: 0; margin: 0; display: grid; gap: 13px; }
-.lp-sources li {
-  font-size: 14.5px;
-  line-height: 1.65;
-  color: var(--wheat-dim);
-  padding-left: 20px;
-  position: relative;
-}
-.lp-sources li::before {
-  content: '';
-  position: absolute;
-  left: 0;
-  top: 9px;
-  width: 8px;
-  height: 1px;
-  background: var(--brass);
-}
-.lp-sources strong { color: var(--wheat); font-weight: 600; }
-
+/* La preuve chiffrée prend la forme d'un encart tamponné : c'est la pièce
+   justificative de la page, elle doit en avoir l'air. */
 .lp-proof {
-  padding: 26px 26px 24px;
-  background: rgba(217, 164, 65, 0.055);
-  border: 1px solid var(--hairline);
-  border-radius: 4px;
+  padding: 30px 30px 28px;
+  border: 1.5px solid var(--ink);
+  border-radius: 3px;
+  background: rgba(255, 253, 247, 0.7);
+  box-shadow: 5px 5px 0 rgba(34, 27, 18, 0.09);
 }
 .lp-proof h3 {
-  font-size: 10px;
-  text-transform: uppercase;
-  letter-spacing: 0.16em;
+  margin: 0 0 22px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--rule);
+  font-size: 11.5px;
   font-weight: 700;
-  color: var(--brass-dim);
-  margin: 0 0 20px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
 }
-.lp-proof dl { margin: 0; display: grid; gap: 20px; }
-.lp-proof dt {
-  font-size: 12.5px;
-  color: var(--wheat-dim);
-  margin-bottom: 4px;
-}
-.lp-proof dd { margin: 0; }
+.lp-proof dl { margin: 0; display: grid; gap: 22px; }
+.lp-proof dt { font-size: 13px; color: var(--ink-soft); margin-bottom: 3px; }
+.lp-proof dd { margin: 0; font-size: 13px; color: var(--ink); }
 .lp-proof dd b {
   font-family: var(--font-display);
-  font-size: 30px;
-  font-weight: 600;
-  font-variation-settings: 'SOFT' 30, 'WONK' 1;
-  letter-spacing: -0.02em;
-  color: var(--brass-bright);
-  margin-right: 4px;
-}
-.lp-proof-ref { font-size: 11.5px; line-height: 1.55; color: var(--wheat-faint); margin-top: 5px !important; }
-.lp-proof > p {
-  margin: 22px 0 0;
-  padding-top: 18px;
-  border-top: 1px solid var(--hairline-soft);
-  font-size: 13px;
-  line-height: 1.65;
-  color: var(--wheat-dim);
-}
-
-/* ---- appel final */
-
-.lp-final {
-  max-width: 1180px;
-  margin: 0 auto;
-  padding: 78px 32px 92px;
-  text-align: center;
-  border-top: 1px solid var(--hairline-soft);
-}
-.lp-final h2 {
-  font-family: var(--font-display);
-  font-size: clamp(28px, 3.4vw, 40px);
+  font-size: 34px;
   font-weight: 600;
   font-variation-settings: 'SOFT' 40, 'WONK' 1;
-  margin: 0 0 12px;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.03em;
+  color: var(--gold);
+  margin-right: 5px;
 }
-.lp-final > p { font-size: 15px; color: var(--wheat-dim); margin: 0; }
+.lp-proof-ref { font-size: 12px !important; line-height: 1.55; color: var(--ink-faint) !important; margin-top: 5px !important; }
 
-.lp-records { margin-top: 52px; max-width: 620px; margin-inline: auto; text-align: left; }
-.lp-records h3 {
-  font-size: 10px;
-  text-transform: uppercase;
-  letter-spacing: 0.16em;
-  color: var(--brass-dim);
-  font-weight: 700;
-  margin: 0 0 12px;
+/* ---------------------------------------------------------------- appel final
+
+   Un vrai final : bandeau d'encre pleine page, comme la quatrième de
+   couverture d'un almanach. Le contraste avec le papier réveille l'œil au
+   moment exact où on demande le clic. */
+
+.lp-final {
+  margin: 0;
+  padding: 100px 40px 108px;
+  text-align: center;
+  background: var(--ink);
+  color: var(--paper);
+  position: relative;
+  overflow: hidden;
 }
-.lp-records-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.lp-final::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse 70% 60% at 50% 0%, rgba(184, 134, 42, 0.26), transparent 62%);
+  pointer-events: none;
+}
+.lp-final > * { position: relative; }
+.lp-final h2 {
+  font-family: var(--font-display);
+  font-size: clamp(34px, 4.6vw, 62px);
+  font-weight: 600;
+  font-variation-settings: 'SOFT' 60, 'WONK' 1;
+  letter-spacing: -0.032em;
+  line-height: 1.02;
+  margin: 0 0 14px;
+  color: #f7f2e6;
+}
+.lp-final h2 em { font-style: italic; color: var(--gold-bright); }
+.lp-final > p { font-size: 16px; color: rgba(247, 242, 230, 0.72); margin: 0; }
+.lp-final .lp-cta {
+  background: var(--gold-bright);
+  color: #221b12;
+  box-shadow: 0 14px 36px rgba(224, 169, 60, 0.28);
+}
+.lp-final .lp-cta:hover { background: #f7f2e6; box-shadow: 0 18px 44px rgba(247, 242, 230, 0.24); }
+
+.lp-records { margin-top: 62px; max-width: 640px; margin-inline: auto; text-align: left; }
+.lp-records h3 {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: rgba(247, 242, 230, 0.5);
+  margin: 0 0 14px;
+}
+.lp-records-table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
 .lp-records-table th {
   text-align: left;
-  font-size: 9.5px;
-  text-transform: uppercase;
-  letter-spacing: 0.14em;
-  color: var(--brass-dim);
+  font-size: 10.5px;
   font-weight: 700;
-  padding: 7px 9px;
-  border-bottom: 1px solid var(--hairline);
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+  color: rgba(247, 242, 230, 0.45);
+  padding: 8px 10px;
+  border-bottom: 1px solid rgba(247, 242, 230, 0.22);
 }
-.lp-records-table td { padding: 8px 9px; border-bottom: 1px solid var(--hairline-soft); color: var(--wheat-dim); }
+.lp-records-table td {
+  padding: 9px 10px;
+  border-bottom: 1px solid rgba(247, 242, 230, 0.1);
+  color: rgba(247, 242, 230, 0.78);
+}
 
 /* ---- pied de page */
 
 .lp-footer {
-  max-width: 1180px;
+  max-width: 1240px;
   margin: 0 auto;
-  padding: 30px 32px 44px;
-  border-top: 1px solid var(--hairline-soft);
+  padding: 34px 40px 52px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 18px 34px;
+  align-items: baseline;
+  justify-content: space-between;
 }
-.lp-footer p { font-size: 12.5px; line-height: 1.7; color: var(--wheat-faint); margin: 0; max-width: 70ch; }
+.lp-footer p { font-size: 12.5px; line-height: 1.65; color: var(--ink-faint); margin: 0; max-width: 62ch; }
+.lp-footer a { color: var(--ink-soft); text-decoration: underline; text-underline-offset: 2px; }
+.lp-footer a:hover { color: var(--gold); }
 
-@media (max-width: 940px) {
-  .lp-hero { grid-template-columns: 1fr; gap: 40px; padding-bottom: 48px; }
-  .lp-hero-visual { order: -1; }
+/* ---------------------------------------------------------------- entrée
+
+   Une seule orchestration, au chargement : le paysage se révèle, puis le
+   texte monte en cascade. C'est le seul moment de la page où l'animation
+   apporte quelque chose. */
+
+@keyframes lp-rise {
+  from { opacity: 0; transform: translateY(18px); }
+  to { opacity: 1; transform: none; }
+}
+.lp-hero-text > * {
+  animation: lp-rise 0.85s cubic-bezier(0.22, 1, 0.36, 1) backwards;
+}
+.lp-hero-text > :nth-child(1) { animation-delay: 0.06s; }
+.lp-hero-text > :nth-child(2) { animation-delay: 0.14s; }
+.lp-hero-text > :nth-child(3) { animation-delay: 0.22s; }
+.lp-hero-text > :nth-child(4) { animation-delay: 0.3s; }
+
+@media (prefers-reduced-motion: reduce) {
+  .lp-hero-text > * { animation: none; }
+  .lp-stage-live { transition: none; }
+  .lp-reroll:hover { transform: none; }
+}
+
+/* ---------------------------------------------------------------- écrans étroits */
+
+@media (max-width: 1000px) {
+  .lp-header, .lp-hero-text, .lp-hero-caption, .lp-section, .lp-figures, .lp-footer {
+    padding-inline: 24px;
+  }
+  .lp-final { padding-inline: 24px; }
   .lp-nav { display: none; }
-  .lp-section, .lp-final { padding-inline: 22px; }
-  .lp-figures { padding-inline: 22px; }
-  .lp-figures > div { padding-block: 20px 22px; }
-  .lp-figures strong { font-size: 32px; }
-  .lp-sources-layout { grid-template-columns: 1fr; gap: 32px; }
+  .lp-sources-layout { grid-template-columns: 1fr; gap: 36px; }
+  .lp-figures > div + div { border-left: none; padding-left: 8px; }
+  .lp-figures strong { font-size: 36px; }
+}
+
+@media (max-width: 720px) {
+  .lp-hero { min-height: auto; }
+  .lp-hero-text { padding-top: 40px; padding-bottom: 44px; }
+  .lp-hero h1 { max-width: none; }
+  .lp-lede { max-width: none; }
+  .lp-section { padding-block: 64px; }
+  .lp-timeline li { padding-right: 12px; }
 }

@@ -1,0 +1,71 @@
+# Belle Récolte
+
+> Jeu de gestion agricole en 3D jouable gratuitement dans le navigateur, sans
+> inscription ni installation. Le joueur mène une campagne agricole complète sur
+> 96 hectares en Bassin parisien, de la préparation des sols de fin août à
+> l'arrachage des dernières betteraves en novembre de l'année suivante.
+
+Site : https://yoanbernabeu.github.io/BelleRecolte/
+Code source : https://github.com/yoanbernabeu/BelleRecolte (licence MIT)
+Langue : français
+Technologies : TypeScript, Three.js, Vite
+
+## En bref
+
+- 96,8 hectares répartis en 8 parcelles nommées, aux sols différents (limon,
+  argilo-calcaire, craie, sable, argile lourde)
+- 27 tours : une quinzaine par tour en période de travail, un mois au cœur de l'hiver
+- 7 cultures : colza d'hiver, orge d'hiver, blé tendre d'hiver, orge de printemps,
+  betterave sucrière, tournesol, maïs grain
+- Durée d'une partie : environ 20 minutes
+- Chaque campagne est déterminée par un code partageable : deux joueurs qui
+  saisissent le même code affrontent exactement la même météo sur la même ferme
+
+## Ce qui fait la difficulté
+
+Le rendement agronomique ne suffit pas à faire un résultat économique. Quatre
+contraintes, mesurées sur soixante campagnes conduites en suivant tous les
+conseils du jeu, produisent **plus d'une campagne perdante sur trois** :
+
+1. **Stock d'intrants fini.** Azote, fongicides et insecticides sont commandés en
+   août, avant de connaître l'année. La dotation couvre environ les deux tiers d'un
+   itinéraire complet. Sans réapprovisionnement, une campagne bien conduite laisse
+   en moyenne 8,7 apports d'azote non réalisés.
+2. **Une seule moissonneuse.** Un chantier à une personne avance de 4,5 hectares
+   par jour ouvrable, et blé, orge et colza mûrissent presque ensemble. Le recours
+   à une entreprise de travaux agricoles coûte 165 à 495 €/ha selon la culture ;
+   dans 19 % des campagnes, le refuser coûte au moins une parcelle entière.
+3. **Financement à découvert.** Les charges de structure — 640 €/ha : fermage,
+   mécanisation, assurances, cotisations, frais généraux — sont prélevées à chaque
+   tour, que la parcelle produise ou non. Les recettes n'arrivent qu'en juillet.
+   L'autorisation bancaire est de 62 000 €, avec 0,25 % d'agios par quinzaine.
+4. **Aléas hors prévisions.** Grêle, sangliers sur le maïs au stade laiteux,
+   corvidés au semis, limaces à la levée. Une assurance récolte optionnelle par
+   parcelle, à franchise de 30 %, coûte en médiane 2 400 € de marge et divise par
+   deux le pire scénario.
+
+## Sources agronomiques et économiques
+
+Les paramètres ne sont pas inventés. Ils proviennent de sources publiques françaises :
+
+- **Agreste** (ministère de l'Agriculture) : rendements et prix des récoltes 2024
+  et 2025, recensement agricole 2020 pour la structure des exploitations
+- **Chambres d'agriculture** (synthèse « Mes Parcelles » Hauts-de-France, Chambre
+  des Landes) : charges opérationnelles réellement enregistrées, marges brutes
+- **Arvalis, Terres Inovia, ITB** : fenêtres de semis et de récolte, stades
+  phénologiques, seuils de traitement, degrés-jours, besoins en eau
+- **Météo-France** : normales climatiques 1991-2020, évapotranspiration calculée
+  par la formule de Hargreaves
+- **Catalogue E-Phy** : délais avant récolte et intervalles entre traitements
+
+## Repères chiffrés vérifiés par simulation
+
+Mesures obtenues en rejouant des dizaines de campagnes à chaque modification du
+moteur (fichier `src/sim/balance.test.ts`) :
+
+- Blé tendre en conduite soignée : 6,3 t/ha en moyenne, jusqu'à 10,0 les bonnes
+  années (moyenne nationale française : 7,4 t/ha)
+- Betterave sucrière : 75,2 t/ha en moyenne (fourchette régionale réelle : 68 à 100)
+- Marge de campagne médiane : environ 16 600 €
+- Part des campagnes déficitaires : 37 %
+- Pire campagne observée : −52 000 €

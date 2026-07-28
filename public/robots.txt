@@ -2,3 +2,6 @@ User-agent: *
 Allow: /
 
 Sitemap: https://yoanbernabeu.github.io/BelleRecolte/sitemap.xml
+
+# Résumé structuré à destination des moteurs de réponse
+# https://yoanbernabeu.github.io/BelleRecolte/llms.txt

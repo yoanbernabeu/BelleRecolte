@@ -23,17 +23,21 @@
       property="og:description"
       content="Du semis d’automne à la dernière betterave : une campagne agricole complète sur 96 hectares. Sept cultures, une météo qu’on ne devine qu’à moitié, un budget qui ne pardonne pas."
     />
+    <meta property="og:url" content="https://yoanbernabeu.github.io/BelleRecolte/" />
     <meta property="og:image" content="/og.jpg" />
+    <meta property="og:image:secure_url" content="/og.jpg" />
+    <meta property="og:image:type" content="image/jpeg" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
-    <meta property="og:image:alt" content="Vue aérienne d’une exploitation agricole en 3D, parcelles et haies dans une plaine céréalière" />
+    <meta property="og:image:alt" content="Vue aérienne d’une exploitation agricole en 3D : huit parcelles en damier, deux en colza jaune vif, séparées par des chemins de terre et des haies, avec le corps de ferme et ses silos" />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="Belle Récolte — jeu de gestion agricole en 3D" />
     <meta
       name="twitter:description"
-      content="Une campagne agricole complète dans le navigateur. Sept cultures, une météo incertaine, un budget serré."
+      content="Menez 96 hectares sur quinze mois. Sept cultures, une météo incertaine, une trésorerie qui ne pardonne pas. Gratuit, dans le navigateur."
     />
     <meta name="twitter:image" content="/og.jpg" />
+    <meta name="twitter:image:alt" content="Vue aérienne d’une exploitation agricole en 3D, parcelles de colza en fleur et corps de ferme" />
 
     <link
       rel="icon"
@@ -48,13 +52,43 @@
         "description": "Jeu de gestion agricole en 3D jouable dans le navigateur. Le joueur mène une campagne complète sur 96 hectares, du semis d’automne à la récolte, face à une météo incertaine et un budget limité.",
         "url": "https://yoanbernabeu.github.io/BelleRecolte/",
         "image": "https://yoanbernabeu.github.io/BelleRecolte/og.jpg",
+        "screenshot": "https://yoanbernabeu.github.io/BelleRecolte/og.jpg",
         "inLanguage": "fr",
-        "genre": ["Gestion", "Simulation", "Stratégie"],
+        "genre": ["Gestion", "Simulation", "Stratégie", "Jeu de gestion agricole"],
         "gamePlatform": "Navigateur web",
         "playMode": "SinglePlayer",
-        "applicationCategory": "Game",
-        "operatingSystem": "Tout navigateur moderne",
-        "offers": { "@type": "Offer", "price": "0", "priceCurrency": "EUR" }
+        "applicationCategory": "GameApplication",
+        "applicationSubCategory": "Simulation de gestion",
+        "operatingSystem": "Tout navigateur moderne compatible WebGL",
+        "browserRequirements": "Navigateur compatible WebGL 2",
+        "isAccessibleForFree": true,
+        "author": { "@type": "Person", "name": "Yoan Bernabeu" },
+        "license": "https://opensource.org/licenses/MIT",
+        "offers": { "@type": "Offer", "price": "0", "priceCurrency": "EUR" },
+        "gameItem": [
+          { "@type": "Thing", "name": "Colza d’hiver", "description": "Semé fin août, récolté en juillet. Tête de rotation." },
+          { "@type": "Thing", "name": "Orge d’hiver", "description": "Semée en octobre, récoltée mi-juin. La première moisson de l’année." },
+          { "@type": "Thing", "name": "Blé tendre d’hiver", "description": "Semé mi-octobre, récolté en juillet. La culture la plus régulière." },
+          { "@type": "Thing", "name": "Orge de printemps", "description": "Semée en mars, récoltée en juillet. Prime brassicole si le taux de protéines reste bas." },
+          { "@type": "Thing", "name": "Betterave sucrière", "description": "Semée en mars, arrachée en octobre. La plus rentable et la plus exigeante." },
+          { "@type": "Thing", "name": "Tournesol", "description": "Semé en avril, récolté en septembre. Rustique et sobre en eau." },
+          { "@type": "Thing", "name": "Maïs grain", "description": "Semé en mai, récolté en octobre. Le plus gros potentiel, le plus gourmand en eau." }
+        ]
+      }
+    </script>
+
+    <!-- Le fil d'Ariane et la fiche logicielle aident les moteurs de réponse à
+         situer la page : de quoi il s'agit, qui l'édite, sous quelle licence. -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "name": "Belle Récolte",
+        "alternateName": "Belle Récolte — jeu de gestion agricole en 3D",
+        "url": "https://yoanbernabeu.github.io/BelleRecolte/",
+        "inLanguage": "fr",
+        "description": "Jeu de gestion agricole en 3D jouable dans le navigateur, calé sur des données agronomiques publiques françaises.",
+        "publisher": { "@type": "Person", "name": "Yoan Bernabeu" }
       }
     </script>
 
@@ -102,6 +136,30 @@
               "@type": "Answer",
               "text": "Oui, et c’est fréquent. En suivant tous les conseils du jeu, plus d’une campagne sur trois se solde par une perte. Les charges de structure tombent chaque quinzaine, le stock d’intrants ne couvre pas un itinéraire complet, la moisson peut demander une entreprise de travaux, et la grêle comme les sangliers ne s’annoncent dans aucune prévision. La trésorerie peut passer en découvert, avec des agios à la clé."
             }
+          },
+          {
+            "@type": "Question",
+            "name": "Combien de temps dure une partie de Belle Récolte ?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Une campagne complète se joue en une vingtaine de minutes. Elle compte vingt-sept tours : une quinzaine par tour pendant les périodes de travail, un mois entier au cœur de l’hiver quand la végétation est à l’arrêt. Rien ne se déclenche tant que le joueur ne passe pas au tour suivant, il n’y a donc aucune contrainte de temps réel."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Quelles cultures peut-on semer ?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Sept cultures de plaine céréalière française. Trois d’hiver : colza semé fin août, orge d’hiver en octobre, blé tendre mi-octobre. Quatre de printemps : orge de printemps et betterave sucrière en mars, tournesol en avril, maïs grain en mai. Chaque culture a sa fenêtre de semis, son délai de retour sur la même parcelle et son plafond de surface, conformément aux règles de rotation réelles."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Belle Récolte est-il open source ?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Oui. Le code est publié sous licence MIT sur GitHub, à l’adresse github.com/yoanbernabeu/BelleRecolte. Le moteur de simulation est écrit en TypeScript sans dépendance au rendu, et le rendu 3D utilise Three.js sans aucun modèle externe : terrain, parcellaire, bâtiments et couvert végétal sont générés en code."
+            }
           }
         ]
       }
@@ -112,33 +170,48 @@
     <!-- La page est servie en HTML statique : elle est lisible et indexable
          sans JavaScript. Le moteur 3D n'est chargé qu'au clic sur « Jouer ». -->
     <div id="landing">
-      <header class="lp-header">
-        <a class="lp-brand" href="./">
-          <span class="lp-brand-mark" aria-hidden="true">🌾</span>
-          <span>Belle Récolte</span>
-        </a>
-        <nav class="lp-nav" aria-label="Navigation principale">
-          <a href="#principe">Le principe</a>
-          <a href="#tension">Les risques</a>
-          <a href="#cultures">Les cultures</a>
-          <a href="#sources">Les sources</a>
-        </nav>
-      </header>
-
       <main>
-        <section class="lp-hero">
+        <!-- Le paysage occupe tout le haut de l'écran et le contenu se pose
+             dessus. La capture s'affiche immédiatement ; la scène 3D vient s'y
+             substituer en fondu si l'appareil et les préférences du visiteur
+             s'y prêtent (voir landing.ts). -->
+        <section class="lp-hero" id="hero-frame">
+          <div class="lp-stage" aria-hidden="true">
+            <img
+              src="/og.jpg"
+              width="1200"
+              height="630"
+              alt=""
+              fetchpriority="high"
+              decoding="async"
+            />
+          </div>
+
+          <header class="lp-header">
+            <a class="lp-brand" href="./">
+              <span class="lp-brand-mark" aria-hidden="true">🌾</span>
+              <span>Belle Récolte</span>
+            </a>
+            <nav class="lp-nav" aria-label="Navigation principale">
+              <a href="#principe">Le principe</a>
+              <a href="#tension">Les risques</a>
+              <a href="#cultures">Les cultures</a>
+              <a href="#sources">Les sources</a>
+            </nav>
+          </header>
+
           <div class="lp-hero-text">
-            <p class="lp-eyebrow">Jeu de gestion agricole · 3D · navigateur</p>
-            <h1>Une campagne entière,<br />du semis à la moisson</h1>
+            <p class="lp-eyebrow">Jeu de gestion agricole en 3D · <b>gratuit, sans inscription</b></p>
+            <h1>Une campagne entière, <em>du semis à la moisson</em></h1>
             <p class="lp-lede">
               Vous reprenez 96 hectares à la fin du mois d’août, juste après la moisson
               précédente. Quinze mois plus tard, il faudra que les silos soient pleins.
               Entre les deux : sept cultures à placer, une météo qu’on ne devine qu’à
-              moitié, et un budget qui ne pardonne pas grand-chose.
+              moitié, et une trésorerie qui ne pardonne pas grand-chose.
             </p>
 
             <form class="lp-start" id="start-form">
-              <label class="lp-start-label" for="landing-seed">Code de campagne</label>
+              <label class="lp-start-label" for="landing-seed">Votre code de campagne</label>
               <div class="lp-start-row">
                 <input
                   id="landing-seed"
@@ -156,31 +229,16 @@
               </div>
               <button type="submit" class="lp-cta">Commencer la campagne</button>
               <p class="lp-start-help" id="seed-help">
-                Gratuit, sans inscription. Deux joueurs qui saisissent le même code
+                Rien à installer, rien à créer. Deux joueurs qui saisissent le même code
                 affrontent exactement la même année.
               </p>
             </form>
           </div>
 
-          <div class="lp-hero-visual" aria-hidden="true">
-            <!-- La capture s'affiche tout de suite ; la scène 3D vient s'y
-                 substituer plus tard si l'appareil et les préférences du
-                 visiteur le permettent (voir landing.ts). -->
-            <div class="lp-hero-frame" id="hero-frame">
-              <img
-                src="/og.jpg"
-                width="1200"
-                height="630"
-                alt=""
-                fetchpriority="high"
-                decoding="async"
-              />
-            </div>
-            <p class="lp-hero-caption">
-              La ferme, en fin de printemps — le colza en fleur, la betterave qui couvre,
-              le maïs qui démarre.
-            </p>
-          </div>
+          <p class="lp-hero-caption">
+            La ferme en fin de printemps — le colza en fleur, la betterave qui couvre,
+            le maïs qui démarre. Faites tourner la vue à la souris.
+          </p>
         </section>
 
         <section class="lp-figures" aria-label="La campagne en chiffres">
@@ -413,7 +471,7 @@
         </section>
 
         <section class="lp-final">
-          <h2>Prêt à semer ?</h2>
+          <h2>La terre <em>n’attend pas</em></h2>
           <p>Une partie dure une vingtaine de minutes. Aucune inscription, aucun téléchargement.</p>
           <button type="button" class="lp-cta lp-cta--large" id="cta-bottom">
             Commencer la campagne
@@ -424,8 +482,13 @@
 
       <footer class="lp-footer">
         <p>
-          Belle Récolte — jeu de gestion agricole en 3D, développé avec Three.js et
-          TypeScript. Les données agronomiques sont issues de sources publiques françaises.
+          <strong>Belle Récolte</strong> — jeu de gestion agricole en 3D, développé avec
+          Three.js et TypeScript. Les données agronomiques et économiques sont issues de
+          sources publiques françaises.
+        </p>
+        <p>
+          <a href="https://github.com/yoanbernabeu/BelleRecolte">Code source sur GitHub</a>
+          · Licence MIT
         </p>
       </footer>
     </div>

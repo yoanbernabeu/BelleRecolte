@@ -121,8 +121,11 @@ export function mountHeroScene(container: HTMLElement): HeroScene {
 
   // Une vue rasante et lente : on veut donner envie d'entrer dans le paysage,
   // pas simuler un survol de drone.
-  viewport.camera.position.set(78, 48, 104)
-  viewport.controls.target.set(0, 2, 0)
+  // Le bandeau est large et le texte occupe sa moitié gauche : on cadre donc
+  // la ferme légèrement à droite du centre, et d'assez loin pour qu'elle tienne
+  // entière quelle que soit la proportion de l'écran.
+  viewport.camera.position.set(96, 62, 124)
+  viewport.controls.target.set(16, 2, -4)
   viewport.controls.autoRotate = true
   viewport.controls.autoRotateSpeed = 0.3
   viewport.controls.enableZoom = false

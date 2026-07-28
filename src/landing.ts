@@ -108,8 +108,10 @@ function mountHeroWhenReady(frame: HTMLElement): void {
     whenIdle(() => {
       void import('./render/heroScene')
         .then(({ mountHeroScene }) => {
-          const stage = el('div', 'lp-hero-stage')
-          frame.append(stage)
+          const stage = el('div', 'lp-stage-live')
+          // La scène se glisse dans le décor, au-dessus de la capture et sous
+          // les voiles de lisibilité : le texte reste lisible sans retouche.
+          frame.querySelector('.lp-stage')?.append(stage)
           mountHeroScene(stage)
           // Le fondu attend une image rendue, sinon on découvrirait un cadre
           // noir le temps que la scène se construise.
