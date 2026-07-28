@@ -1,0 +1,14 @@
+node_modules/
+dist/
+*.local
+
+# Éditeurs et systèmes
+.DS_Store
+.idea/
+.vscode/
+*.swp
+
+# Journaux
+npm-debug.log*
+yarn-error.log*
+pnpm-debug.log*

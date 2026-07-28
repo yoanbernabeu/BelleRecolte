@@ -1,0 +1,436 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>Belle Récolte — jeu de gestion agricole en 3D, gratuit et sans inscription</title>
+    <meta
+      name="description"
+      content="Menez une campagne agricole complète sur 96 hectares, du semis d’automne à la dernière betterave. Sept cultures, une météo incertaine, un budget serré. Jeu de gestion en 3D jouable directement dans le navigateur, gratuit et sans inscription."
+    />
+    <link rel="canonical" href="https://yoanbernabeu.github.io/BelleRecolte/" />
+    <meta name="robots" content="index, follow, max-image-preview:large" />
+    <meta name="author" content="Belle Récolte" />
+    <meta name="theme-color" content="#141a1e" />
+
+    <!-- Partage social -->
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="fr_FR" />
+    <meta property="og:site_name" content="Belle Récolte" />
+    <meta property="og:title" content="Belle Récolte — jeu de gestion agricole en 3D" />
+    <meta
+      property="og:description"
+      content="Du semis d’automne à la dernière betterave : une campagne agricole complète sur 96 hectares. Sept cultures, une météo qu’on ne devine qu’à moitié, un budget qui ne pardonne pas."
+    />
+    <meta property="og:image" content="/og.jpg" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Vue aérienne d’une exploitation agricole en 3D, parcelles et haies dans une plaine céréalière" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Belle Récolte — jeu de gestion agricole en 3D" />
+    <meta
+      name="twitter:description"
+      content="Une campagne agricole complète dans le navigateur. Sept cultures, une météo incertaine, un budget serré."
+    />
+    <meta name="twitter:image" content="/og.jpg" />
+
+    <link
+      rel="icon"
+      href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌾</text></svg>"
+    />
+
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "VideoGame",
+        "name": "Belle Récolte",
+        "description": "Jeu de gestion agricole en 3D jouable dans le navigateur. Le joueur mène une campagne complète sur 96 hectares, du semis d’automne à la récolte, face à une météo incertaine et un budget limité.",
+        "url": "https://yoanbernabeu.github.io/BelleRecolte/",
+        "image": "https://yoanbernabeu.github.io/BelleRecolte/og.jpg",
+        "inLanguage": "fr",
+        "genre": ["Gestion", "Simulation", "Stratégie"],
+        "gamePlatform": "Navigateur web",
+        "playMode": "SinglePlayer",
+        "applicationCategory": "Game",
+        "operatingSystem": "Tout navigateur moderne",
+        "offers": { "@type": "Offer", "price": "0", "priceCurrency": "EUR" }
+      }
+    </script>
+
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "Qu’est-ce qu’une campagne agricole ?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Une campagne agricole va d’une récolte à la suivante, et non de janvier à décembre. Dans Belle Récolte elle démarre à la fin du mois d’août, juste après la moisson précédente, et s’achève quinze mois plus tard en novembre, quand les dernières betteraves sont arrachées."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Faut-il installer quelque chose pour jouer ?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Non. Le jeu se lance directement dans le navigateur, sans installation ni inscription. Il fonctionne sur tout navigateur moderne compatible WebGL."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Les données agronomiques du jeu sont-elles réalistes ?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Oui. Les rendements, les prix et les charges viennent d’Agreste et des synthèses de Chambres d’agriculture. Les fenêtres de semis, les seuils de gel et les besoins en eau viennent d’Arvalis, de Terres Inovia et de l’ITB. La météo est calée sur les normales Météo-France 1991-2020."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Peut-on rejouer la même année qu’un ami ?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Oui. Chaque campagne est déterminée par un code partageable. Deux joueurs qui saisissent le même code affrontent exactement la même météo sur la même ferme, et peuvent comparer leurs résultats."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Peut-on perdre de l’argent sur une campagne ?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Oui, et c’est fréquent. En suivant tous les conseils du jeu, plus d’une campagne sur trois se solde par une perte. Les charges de structure tombent chaque quinzaine, le stock d’intrants ne couvre pas un itinéraire complet, la moisson peut demander une entreprise de travaux, et la grêle comme les sangliers ne s’annoncent dans aucune prévision. La trésorerie peut passer en découvert, avec des agios à la clé."
+            }
+          }
+        ]
+      }
+    </script>
+  </head>
+
+  <body>
+    <!-- La page est servie en HTML statique : elle est lisible et indexable
+         sans JavaScript. Le moteur 3D n'est chargé qu'au clic sur « Jouer ». -->
+    <div id="landing">
+      <header class="lp-header">
+        <a class="lp-brand" href="./">
+          <span class="lp-brand-mark" aria-hidden="true">🌾</span>
+          <span>Belle Récolte</span>
+        </a>
+        <nav class="lp-nav" aria-label="Navigation principale">
+          <a href="#principe">Le principe</a>
+          <a href="#tension">Les risques</a>
+          <a href="#cultures">Les cultures</a>
+          <a href="#sources">Les sources</a>
+        </nav>
+      </header>
+
+      <main>
+        <section class="lp-hero">
+          <div class="lp-hero-text">
+            <p class="lp-eyebrow">Jeu de gestion agricole · 3D · navigateur</p>
+            <h1>Une campagne entière,<br />du semis à la moisson</h1>
+            <p class="lp-lede">
+              Vous reprenez 96 hectares à la fin du mois d’août, juste après la moisson
+              précédente. Quinze mois plus tard, il faudra que les silos soient pleins.
+              Entre les deux : sept cultures à placer, une météo qu’on ne devine qu’à
+              moitié, et un budget qui ne pardonne pas grand-chose.
+            </p>
+
+            <form class="lp-start" id="start-form">
+              <label class="lp-start-label" for="landing-seed">Code de campagne</label>
+              <div class="lp-start-row">
+                <input
+                  id="landing-seed"
+                  name="seed"
+                  class="lp-seed"
+                  type="text"
+                  maxlength="24"
+                  autocomplete="off"
+                  spellcheck="false"
+                  aria-describedby="seed-help"
+                />
+                <button type="button" class="lp-reroll" id="reroll" title="Tirer une autre année" aria-label="Tirer une autre année">
+                  ↻
+                </button>
+              </div>
+              <button type="submit" class="lp-cta">Commencer la campagne</button>
+              <p class="lp-start-help" id="seed-help">
+                Gratuit, sans inscription. Deux joueurs qui saisissent le même code
+                affrontent exactement la même année.
+              </p>
+            </form>
+          </div>
+
+          <div class="lp-hero-visual" aria-hidden="true">
+            <!-- La capture s'affiche tout de suite ; la scène 3D vient s'y
+                 substituer plus tard si l'appareil et les préférences du
+                 visiteur le permettent (voir landing.ts). -->
+            <div class="lp-hero-frame" id="hero-frame">
+              <img
+                src="/og.jpg"
+                width="1200"
+                height="630"
+                alt=""
+                fetchpriority="high"
+                decoding="async"
+              />
+            </div>
+            <p class="lp-hero-caption">
+              La ferme, en fin de printemps — le colza en fleur, la betterave qui couvre,
+              le maïs qui démarre.
+            </p>
+          </div>
+        </section>
+
+        <section class="lp-figures" aria-label="La campagne en chiffres">
+          <div>
+            <strong>96</strong>
+            <span>hectares à conduire</span>
+          </div>
+          <div>
+            <strong>7</strong>
+            <span>cultures, sept calendriers</span>
+          </div>
+          <div>
+            <strong>27</strong>
+            <span>tours, du semis à la moisson</span>
+          </div>
+          <div>
+            <strong>20<i>min</i></strong>
+            <span>pour une campagne entière</span>
+          </div>
+        </section>
+
+        <section class="lp-section" id="principe">
+          <h2>Quinze mois, vingt-sept tours</h2>
+          <p class="lp-section-lede">
+            Rien ne bouge tant que vous ne passez pas au tour suivant. Le jeu attend
+            vos décisions — et vous n’avez que trois prévisions d’avance, de moins en
+            moins fiables.
+          </p>
+
+          <!-- Le déroulé de la campagne, montré plutôt que raconté. -->
+          <ol class="lp-timeline">
+            <li>
+              <span class="lp-timeline-when">Fin août</span>
+              <span class="lp-timeline-what">Le colza part le premier</span>
+              <p>Quelques jours de retard et les altises s’en chargent.</p>
+            </li>
+            <li>
+              <span class="lp-timeline-when">Octobre</span>
+              <span class="lp-timeline-what">Orge, puis blé</span>
+              <p>Si le sol porte. Un automne noyé et la fenêtre se referme.</p>
+            </li>
+            <li>
+              <span class="lp-timeline-when">Février → avril</span>
+              <span class="lp-timeline-what">L’azote, en trois passages</span>
+              <p>Le stock ne suffira pas pour huit parcelles. Choisissez.</p>
+            </li>
+            <li>
+              <span class="lp-timeline-when">Mars → mai</span>
+              <span class="lp-timeline-what">Betterave, maïs, tournesol</span>
+              <p>Les cultures de printemps, sur ce qu’il reste de trésorerie.</p>
+            </li>
+            <li class="is-peak">
+              <span class="lp-timeline-when">Juillet</span>
+              <span class="lp-timeline-what">Tout mûrit en même temps</span>
+              <p>Une moissonneuse, quinze jours, et l’orage annoncé samedi.</p>
+            </li>
+            <li>
+              <span class="lp-timeline-when">Octobre</span>
+              <span class="lp-timeline-what">Les dernières betteraves</span>
+              <p>On fait les comptes. Parfois ils ne sont pas bons.</p>
+            </li>
+          </ol>
+        </section>
+
+        <section class="lp-section" id="tension">
+          <h2>Une campagne sur trois finit dans le rouge</h2>
+          <p class="lp-section-lede">
+            Et ce sont des campagnes bien conduites, mesurées en suivant tous les
+            conseils du jeu. Voilà ce qui les fait basculer.
+          </p>
+
+          <div class="lp-risks">
+            <article>
+              <h3>Le hangar est fini</h3>
+              <p>
+                Azote, fongicide, insecticide : commandés en août, avant de connaître
+                l’année. De quoi couvrir les deux tiers. Recommander coûte plus cher et
+                met un tour à arriver.
+              </p>
+            </article>
+            <article>
+              <h3>Une seule moissonneuse</h3>
+              <p>
+                Blé, orge et colza mûrissent ensemble, et vous coupez quatre hectares et
+                demi par jour. Une campagne sur cinq, refuser l’entreprise de travaux coûte
+                une parcelle entière — elle facture 165 € l’hectare, 495 € sur betterave,
+                et ne prend que deux chantiers par quinzaine.
+              </p>
+            </article>
+            <article>
+              <h3>Le découvert</h3>
+              <p>
+                Les charges partent dès août, les recettes rentrent en juillet. Entre les
+                deux, la banque suit jusqu’à 62 000 € et compte ses agios.
+              </p>
+            </article>
+            <article>
+              <h3>La grêle</h3>
+              <p>
+                Elle hache une parcelle et épargne sa voisine. Aucune prévision ne
+                l’annonce. Vous pouvez assurer — franchise de 30 %, prime à payer tout de
+                suite.
+              </p>
+            </article>
+            <article>
+              <h3>Les sangliers</h3>
+              <p>
+                Ils sortent du bois sur le maïs au stade laiteux. Trois parcelles touchent
+                le bocage : ce sont toujours les mêmes qui paient.
+              </p>
+            </article>
+            <article>
+              <h3>Et le reste</h3>
+              <p>
+                Les corvidés suivent le semoir. Les limaces attendent la levée. La
+                septoriose coûte 23 quintaux si on laisse filer. Le blé verse sous
+                l’orage.
+              </p>
+            </article>
+          </div>
+        </section>
+
+        <section class="lp-section" id="cultures">
+          <h2>Sept cultures, sept calendriers</h2>
+          <p class="lp-section-lede">
+            Trois passent l’hiver au champ, quatre sont semées au printemps. C’est cette
+            opposition qui oblige à répartir le risque.
+          </p>
+
+          <div class="lp-crops">
+            <article class="lp-crop lp-crop--winter" style="--crop: #f2d833">
+              <h3><span class="lp-crop-dot" aria-hidden="true"></span>Colza d’hiver</h3>
+              <p class="lp-crop-when">Août → juillet</p>
+              <p>Tête de rotation. L’implantation se joue à quelques jours près.</p>
+            </article>
+            <article class="lp-crop lp-crop--winter" style="--crop: #cfb45f">
+              <h3><span class="lp-crop-dot" aria-hidden="true"></span>Orge d’hiver</h3>
+              <p class="lp-crop-when">Octobre → mi-juin</p>
+              <p>La première moisson. Verse facilement, attrape la jaunisse.</p>
+            </article>
+            <article class="lp-crop lp-crop--winter" style="--crop: #e0c46a">
+              <h3><span class="lp-crop-dot" aria-hidden="true"></span>Blé tendre</h3>
+              <p class="lp-crop-when">Mi-octobre → juillet</p>
+              <p>La culture reine. Régulière, sauf quand la septoriose s’installe.</p>
+            </article>
+            <article class="lp-crop lp-crop--spring" style="--crop: #ddcb8a">
+              <h3><span class="lp-crop-dot" aria-hidden="true"></span>Orge de printemps</h3>
+              <p class="lp-crop-when">Mars → juillet</p>
+              <p>Prime brassicole, à condition de ne pas trop la fertiliser.</p>
+            </article>
+            <article class="lp-crop lp-crop--spring" style="--crop: #3f7a35">
+              <h3><span class="lp-crop-dot" aria-hidden="true"></span>Betterave sucrière</h3>
+              <p class="lp-crop-when">Mars → octobre</p>
+              <p>La plus rentable, la plus exigeante. La jaunisse peut coûter un tiers.</p>
+            </article>
+            <article class="lp-crop lp-crop--spring" style="--crop: #e8bb2e">
+              <h3><span class="lp-crop-dot" aria-hidden="true"></span>Tournesol</h3>
+              <p class="lp-crop-when">Avril → septembre</p>
+              <p>Rustique et sobre. Mais les oiseaux ravagent une parcelle isolée.</p>
+            </article>
+            <article class="lp-crop lp-crop--spring" style="--crop: #a89344">
+              <h3><span class="lp-crop-dot" aria-hidden="true"></span>Maïs grain</h3>
+              <p class="lp-crop-when">Mai → octobre</p>
+              <p>Le plus gros potentiel, le plus gourmand en eau. Et les sangliers.</p>
+            </article>
+          </div>
+        </section>
+
+        <section class="lp-section lp-section--tight" id="sources">
+          <h2>Ce n’est pas inventé</h2>
+          <div class="lp-sources-layout">
+            <div>
+              <p class="lp-section-lede">
+                Rendements, prix, charges, fenêtres de semis, seuils de gel, besoins en
+                eau : tout vient de sources publiques françaises. Le moteur est vérifié en
+                rejouant des dizaines de campagnes à chaque modification.
+              </p>
+
+              <!-- Replié par défaut : le détail intéresse ceux qui le cherchent, et
+                   reste dans le document pour l'indexation. -->
+              <details class="lp-details">
+                <summary>Le détail des sources</summary>
+                <ul class="lp-sources">
+                  <li>
+                    <strong>Agreste</strong> — rendements et prix des récoltes 2024 et 2025,
+                    recensement agricole 2020 pour la structure des exploitations
+                  </li>
+                  <li>
+                    <strong>Chambres d’agriculture</strong> — charges opérationnelles réellement
+                    enregistrées par des agriculteurs, marges brutes par culture
+                  </li>
+                  <li>
+                    <strong>Arvalis, Terres Inovia, ITB</strong> — dates de semis et de récolte,
+                    stades phénologiques, seuils de traitement, degrés-jours
+                  </li>
+                  <li>
+                    <strong>Météo-France</strong> — normales climatiques 1991-2020, avec une
+                    évapotranspiration calculée par la formule de Hargreaves
+                  </li>
+                </ul>
+              </details>
+            </div>
+
+            <aside class="lp-proof">
+              <h3>Mesuré, pas réglé à la main</h3>
+              <dl>
+                <div>
+                  <dt>Blé tendre, conduite soignée</dt>
+                  <dd><b>6,3</b> t/ha en moyenne</dd>
+                  <dd class="lp-proof-ref">
+                    jusqu’à 10,0 les bonnes années. La moyenne nationale est de 7,4 :
+                    l’écart, c’est l’azote qui manque.
+                  </dd>
+                </div>
+                <div>
+                  <dt>Betterave sucrière</dt>
+                  <dd><b>75,2</b> t/ha en moyenne</dd>
+                  <dd class="lp-proof-ref">fourchette régionale réelle de 68 à 100</dd>
+                </div>
+                <div>
+                  <dt>Campagnes dans le rouge</dt>
+                  <dd><b>37</b> %</dd>
+                  <dd class="lp-proof-ref">
+                    en suivant tous les conseils du jeu, sur soixante campagnes simulées
+                  </dd>
+                </div>
+              </dl>
+            </aside>
+          </div>
+        </section>
+
+        <section class="lp-final">
+          <h2>Prêt à semer ?</h2>
+          <p>Une partie dure une vingtaine de minutes. Aucune inscription, aucun téléchargement.</p>
+          <button type="button" class="lp-cta lp-cta--large" id="cta-bottom">
+            Commencer la campagne
+          </button>
+          <div id="records-slot"></div>
+        </section>
+      </main>
+
+      <footer class="lp-footer">
+        <p>
+          Belle Récolte — jeu de gestion agricole en 3D, développé avec Three.js et
+          TypeScript. Les données agronomiques sont issues de sources publiques françaises.
+        </p>
+      </footer>
+    </div>
+
+    <div id="app" hidden></div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

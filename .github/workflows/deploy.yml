@@ -1,0 +1,75 @@
+# Vérification puis publication sur GitHub Pages.
+#
+# Les deux étapes sont séparées volontairement : la vérification tourne sur
+# chaque poussée et chaque proposition de fusion, la publication seulement
+# depuis la branche principale. Une proposition de fusion qui casse les tests
+# ne doit pas pouvoir mettre le jeu en ligne.
+name: Vérifier et publier
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  # Permet de relancer une publication à la main depuis l'onglet Actions.
+  workflow_dispatch:
+
+# Une seule publication à la fois, et on ne coupe pas celle qui est en cours :
+# annuler un déploiement à mi-parcours laisserait le site dans un état bâtard.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  verifier:
+    name: Types, tests et compilation
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - name: Contrôle des types
+        run: npx tsc --noEmit
+
+      - name: Tests d'équilibrage
+        run: npx vitest run
+
+      - name: Compilation
+        run: npx vite build
+
+      # L'artefact n'est produit que sur la branche principale : il ne sert
+      # qu'à la publication, et le construire sur une proposition de fusion
+      # n'apporterait rien.
+      - name: Préparer l'artefact Pages
+        if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+  publier:
+    name: Publier sur GitHub Pages
+    needs: verifier
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+
+    permissions:
+      pages: write
+      id-token: write
+
+    environment:
+      name: github-pages
+      url: ${{ steps.deploiement.outputs.page_url }}
+
+    steps:
+      - name: Déployer
+        id: deploiement
+        uses: actions/deploy-pages@v4

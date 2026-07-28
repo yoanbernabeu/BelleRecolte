@@ -1,0 +1,32 @@
+{
+  "name": "belle-recolte",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Belle Récolte — jeu de gestion agricole en 3D dans le navigateur",
+  "license": "MIT",
+  "author": "Yoan Bernabeu",
+  "homepage": "https://yoanbernabeu.github.io/BelleRecolte/",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yoanbernabeu/BelleRecolte.git"
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@fontsource-variable/archivo": "^5.3.0",
+    "@fontsource-variable/fraunces": "^5.3.0",
+    "three": "^0.180.0"
+  },
+  "devDependencies": {
+    "@types/three": "^0.180.0",
+    "typescript": "^5.7.0",
+    "vite": "^6.0.0",
+    "vitest": "^2.1.0"
+  }
+}
