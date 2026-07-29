@@ -78,6 +78,49 @@ noyaient dedans et rendaient les deux illisibles.
 
 Les polices sont auto-hébergées, aucune requête réseau au chargement.
 
+## Jouer à plusieurs — le mode session
+
+Une session réunit une dizaine de joueurs sur la même campagne, chacun sur son
+poste, pendant **vingt minutes chronométrées**. L'organisateur crée la session,
+annonce le code affiché à l'écran, voit la salle se remplir, puis donne le
+départ — qui ferme la porte aux retardataires.
+
+Tout le monde reçoit **la même graine**, donc la même météo, les mêmes aléas et
+les mêmes prix : ce qui distingue les joueurs, ce sont leurs décisions, rien
+d'autre. Chacun joue seul face à sa campagne et ne sait rien des autres ;
+l'organisateur non plus. Le classement n'existe qu'à la fin, sur son seul poste.
+
+Quand le chrono tombe, la campagne se clôt là où elle en est. Ce qui restait en
+terre n'est pas récolté — mais **les charges de structure de l'année entière
+sont dues**, comme dans la réalité : le fermage part que la parcelle produise ou
+non. Un joueur qui n'a rien tenté termine ainsi à environ −71 400 €.
+
+Deux classements sont affichés, **au tonnage** et **aux euros**, parce qu'ils
+récompensent des choses opposées — l'audace d'un côté, la maîtrise des coûts de
+l'autre, et donc deux vainqueurs possibles. Cas particulier prévu : si personne
+n'a moissonné avant l'échéance, classer à la marge couronnerait celui qui n'a
+rien fait ; le classement bascule alors sur les frais engagés.
+
+Le jeu reste strictement statique et la simulation reste locale à chaque
+navigateur. Un unique service sert de point de rendez-vous — graine, top départ,
+chrono faisant autorité, collecte des résultats — sous la forme d'un Worker
+Cloudflare avec une Durable Object par session (`worker/`), qui tient dans le
+palier gratuit. Il ne connaît aucune règle du jeu.
+
+```bash
+cd worker
+npm install
+npm run deploy      # publie le point de rendez-vous
+```
+
+L'adresse obtenue se renseigne ensuite dans `VITE_SESSION_SERVER` à la
+compilation du jeu. En cas d'incident — onglet fermé, navigateur qui plante — le
+joueur retrouve sa campagne en rouvrant la page sur le même poste : le journal
+de ses décisions est rejoué sur la même graine. Le chrono, lui, n'a pas été
+suspendu.
+
+Le mode solo n'est en rien modifié.
+
 ## Architecture
 
 Le moteur de simulation (`src/sim/`) est du TypeScript pur, sans aucune dépendance au
@@ -89,8 +132,10 @@ src/
   sim/          moteur : calendrier, météo, sols, cultures, économie, simulation
   render/       Three.js : monde, ciel, couvert végétal, précipitations, ambiance
   ui/           interface DOM : HUD, écrans, records
+  session/      multijoueur : protocole, client, scores, classements
   audio/        ambiance générative Web Audio
   game.ts       orchestrateur — le seul module qui connaisse les deux côtés
+worker/         point de rendez-vous des sessions (Cloudflare)
 ```
 
 Aucun asset externe : le terrain, les bâtiments, la végétation, les shaders de culture

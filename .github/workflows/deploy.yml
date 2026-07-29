@@ -45,6 +45,12 @@ jobs:
 
       - name: Compilation
         run: npx vite build
+        env:
+          # Adresse du point de rendez-vous des sessions multijoueurs.
+          # Facultative : sans variable de dépôt `SESSION_SERVER`, le jeu retient
+          # l'adresse du Worker publié. À renseigner pour pointer ailleurs — un
+          # second Worker de recette, par exemple.
+          VITE_SESSION_SERVER: ${{ vars.SESSION_SERVER }}
 
       # L'artefact n'est produit que sur la branche principale : il ne sert
       # qu'à la publication, et le construire sur une proposition de fusion

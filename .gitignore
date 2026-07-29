@@ -2,6 +2,9 @@ node_modules/
 dist/
 *.local
 
+# État local de wrangler : bases des sessions jouées en développement
+.wrangler/
+
 # Éditeurs et systèmes
 .DS_Store
 .idea/

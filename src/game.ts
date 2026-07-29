@@ -22,6 +22,21 @@ import { ResultScreen } from './ui/screens'
 import { saveRecord } from './ui/records'
 import { Briefing, Coach } from './ui/onboarding'
 import { AlertStack } from './ui/alerts'
+import type { SessionClient } from './session/client'
+import { projectScore } from './session/score'
+import { TimerBanner } from './ui/session/timer'
+import { RankingScreen } from './ui/session/ranking'
+import { clearSession, saveSession, type JournalEntry, type SavedSession } from './session/storage'
+
+/** Ce qui distingue une campagne de session d'une campagne solo. */
+export interface SessionContext {
+  readonly client: SessionClient
+  readonly code: string
+  readonly pseudo: string
+  readonly host: boolean
+  /** Journal à rejouer, quand on reprend une partie après un incident. */
+  readonly resume?: readonly JournalEntry[]
+}
 
 export class Game {
   private readonly viewport: Viewport
@@ -41,10 +56,18 @@ export class Game {
   private lastLogLength = 0
   private windStrength = 0.3
 
+  /** Chrono de session, absent en solo. */
+  private timer: TimerBanner | null = null
+  private rankingScreen: RankingScreen | null = null
+  /** Gestes du joueur, conservés pour pouvoir reprendre après un incident. */
+  private journal: JournalEntry[] = []
+  private expired = false
+
   constructor(
     private readonly container: HTMLElement,
     seed: string,
     private readonly onRestart: (seed: string | null) => void,
+    private readonly session?: SessionContext,
   ) {
     this.campaign = new Campaign(seed)
 
@@ -70,7 +93,9 @@ export class Game {
       },
       onToggleAudio: () => void this.toggleAudio(),
       onOrderInput: (id) => {
+        if (this.expired) return
         if (!this.campaign.orderInput(id)) return
+        this.journal.push({ t: 'order', input: id })
         this.ambience.cue('confirm')
         this.syncAll()
       },
@@ -87,17 +112,41 @@ export class Game {
     this.viewport.onFrame((delta, elapsed) => this.frame(delta, elapsed))
     this.viewport.start()
 
+    if (session?.resume) this.replay(session.resume)
+
     this.syncAll()
     this.lastLogLength = this.campaign.log.length
 
-    // Le briefing pose les contraintes avant la première décision ; le guide
-    // les relie ensuite aux endroits de l'écran où elles se lisent. Les deux ne
-    // se déclenchent qu'à la toute première partie, et une fois le HUD peint :
-    // le guide a besoin des positions réelles des éléments qu'il désigne.
-    requestAnimationFrame(() => {
-      if (Coach.hasBeenSeen()) return
-      new Briefing(container, () => Coach.startIfNeeded(container))
-    })
+    if (session) {
+      // En session, le mémo ne s'ouvre pas de lui-même : le chrono tourne déjà,
+      // et les règles ont été dites avant le départ. Il reste à un clic.
+      this.timer = new TimerBanner(container, session.client, () => this.expire())
+    } else {
+      // Le briefing pose les contraintes avant la première décision ; le guide
+      // les relie ensuite aux endroits de l'écran où elles se lisent. Les deux ne
+      // se déclenchent qu'à la toute première partie, et une fois le HUD peint :
+      // le guide a besoin des positions réelles des éléments qu'il désigne.
+      requestAnimationFrame(() => {
+        if (Coach.hasBeenSeen()) return
+        new Briefing(container, () => Coach.startIfNeeded(container))
+      })
+    }
+  }
+
+  /**
+   * Reconstitue une campagne interrompue par un incident.
+   *
+   * On ne restaure pas un état sauvegardé — on rejoue les gestes. La simulation
+   * étant déterministe, la même graine et la même suite de décisions redonnent
+   * la même campagne, au champ près.
+   */
+  private replay(journal: readonly JournalEntry[]): void {
+    for (const step of journal) {
+      if (step.t === 'action') this.campaign.apply(step.action)
+      else if (step.t === 'order') this.campaign.orderInput(step.input)
+      else this.campaign.advance()
+    }
+    this.journal = [...journal]
   }
 
   /** Réaffiche le mémo de campagne à la demande. */
@@ -179,21 +228,68 @@ export class Game {
   // ------------------------------------------------------------ jeu
 
   private handleAction(action: Action): void {
+    if (this.expired) return
     const applied = this.campaign.apply(action)
     if (!applied) return
+    this.journal.push({ t: 'action', action })
     this.ambience.cue(action.kind === 'semer' ? 'sow' : action.kind === 'recolter' ? 'harvest' : 'confirm')
     this.syncAll()
   }
 
   private advance(): void {
-    if (this.campaign.finished) return
+    if (this.campaign.finished || this.expired) return
     this.hud.setBusy(true)
     this.campaign.advance()
+    this.journal.push({ t: 'advance' })
     this.syncAll()
     this.announceNewEvents()
     this.hud.setBusy(false)
+    this.checkpoint()
 
     if (this.campaign.finished) this.showResult()
+  }
+
+  /**
+   * Fin de tour, en session : on sauvegarde de quoi reprendre, et on fait
+   * remonter un score de secours.
+   *
+   * Cette remontée n'est montrée à personne — ni aux autres joueurs, ni à
+   * l'organisateur. Elle ne sert qu'à une chose : si ce poste disparaissait
+   * avant l'échéance, il figurerait quand même au classement, sur sa dernière
+   * position connue plutôt que nulle part.
+   */
+  private checkpoint(): void {
+    if (!this.session) return
+
+    const schedule = this.session.client.schedule
+    if (schedule) {
+      saveSession({
+        code: this.session.code,
+        seed: this.campaign.seedCode,
+        pseudo: this.session.pseudo,
+        startedAt: schedule.startedAt,
+        durationMs: schedule.durationMs,
+        host: this.session.host,
+        journal: this.journal,
+      } satisfies SavedSession)
+    }
+
+    if (!this.campaign.finished) this.session.client.report(projectScore(this.campaign), false)
+  }
+
+  /**
+   * Le chrono est tombé.
+   *
+   * La campagne se clôt là où elle en est : rien de plus n'est semé, rien de
+   * plus n'est moissonné, mais les charges de l'année entière restent dues.
+   */
+  private expire(): void {
+    if (this.expired) return
+    this.expired = true
+    this.hud.setBusy(true)
+    this.campaign.closeEarly()
+    this.syncAll()
+    this.showResult()
   }
 
   private announceNewEvents(): void {
@@ -215,6 +311,30 @@ export class Game {
 
   private showResult(): void {
     const result = this.campaign.result()
+
+    if (this.session) {
+      // Le résultat part une fois, définitif. Les records locaux, eux, restent
+      // le journal des campagnes solo : une partie chronométrée n'y entre pas.
+      this.session.client.report(projectScore(this.campaign), true)
+      this.timer?.dispose()
+      this.timer = null
+      clearSession()
+
+      this.resultScreen = new ResultScreen(
+        this.container,
+        this.campaign,
+        [],
+        () => this.revealOrLeave(),
+        () => this.revealOrLeave(),
+        {
+          singleActionLabel: this.session.host
+            ? 'Afficher le classement'
+            : 'Terminer',
+        },
+      )
+      return
+    }
+
     const records = saveRecord({
       seed: this.campaign.seedCode,
       tonnes: result.totalTonnes,
@@ -228,6 +348,22 @@ export class Game {
       records,
       () => this.onRestart(this.campaign.seedCode),
       () => this.onRestart(null),
+    )
+  }
+
+  /**
+   * Après son bilan, l'organisateur accède au classement de la salle.
+   * Un joueur ordinaire, lui, ne verra jamais celui des autres.
+   */
+  private revealOrLeave(): void {
+    if (!this.session?.host) {
+      this.onRestart(null)
+      return
+    }
+    this.resultScreen?.remove()
+    this.resultScreen = null
+    this.rankingScreen = new RankingScreen(this.container, this.session.client, () =>
+      this.onRestart(null),
     )
   }
 
@@ -293,6 +429,8 @@ export class Game {
   }
 
   dispose(): void {
+    this.timer?.dispose()
+    this.rankingScreen?.dispose()
     this.alerts.dispose()
     void this.ambience.disable()
     for (const layer of this.layers) layer.dispose()

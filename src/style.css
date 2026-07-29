@@ -2081,3 +2081,267 @@ body.is-playing #landing { display: none; }
   .lp-section { padding-block: 64px; }
   .lp-timeline li { padding-right: 12px; }
 }
+
+/* ---------------------------------------------------------------- sessions */
+
+/* Entrée depuis la page d'accueil : une proposition discrète, sous le bouton
+   principal. Jouer seul reste le chemin par défaut. */
+.lp-session-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 14px;
+}
+.lp-session-link {
+  background: none;
+  border: none;
+  color: var(--brass);
+  font-family: var(--font-ui);
+  font-size: 13px;
+  font-weight: 600;
+  padding: 4px 2px;
+  border-bottom: 1px solid transparent;
+  transition: border-color 0.16s, color 0.16s;
+}
+.lp-session-link:hover {
+  color: var(--brass-bright);
+  border-bottom-color: var(--brass);
+}
+.lp-session-sep { color: var(--wheat-faint); }
+
+/* Les écrans de session sont posés sur le document entier, pas sur la scène :
+   ils existent avant que le moteur 3D ne soit chargé. */
+.session-overlay { position: fixed; z-index: 60; }
+.session-card { max-width: 560px; width: 100%; }
+
+.session-form { display: flex; flex-direction: column; gap: 16px; margin-top: 18px; }
+.session-field { display: flex; flex-direction: column; gap: 7px; }
+.session-label {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  color: var(--brass-dim);
+  font-weight: 600;
+}
+.session-input {
+  background: rgba(var(--ink-900) / 0.6);
+  border: 1px solid var(--hairline);
+  border-radius: 3px;
+  padding: 12px 14px;
+  color: var(--wheat);
+  font-family: var(--font-ui);
+  font-size: 15px;
+  width: 100%;
+}
+.session-input:focus {
+  outline: none;
+  border-color: var(--brass);
+  box-shadow: 0 0 0 3px rgba(217, 164, 65, 0.14);
+}
+.session-input.mono {
+  font-size: 22px;
+  letter-spacing: 0.3em;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.session-check {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  color: var(--wheat);
+  cursor: pointer;
+}
+.session-check input { accent-color: var(--brass); width: 16px; height: 16px; }
+
+.session-error {
+  color: var(--alarm);
+  font-size: 13px;
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* Le code s'annonce à voix haute : il doit se lire à trois mètres. */
+.session-code-block {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  margin: 22px 0 14px;
+  padding: 20px;
+  background: rgba(var(--ink-900) / 0.55);
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius);
+}
+.session-code {
+  font-family: var(--font-display);
+  font-size: 54px;
+  line-height: 1;
+  letter-spacing: 0.16em;
+  color: var(--brass-bright);
+  text-shadow: 0 2px 12px rgba(217, 164, 65, 0.3);
+}
+
+.session-players {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.session-player {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 13px;
+  background: rgba(240, 231, 214, 0.05);
+  border: 1px solid var(--hairline-soft);
+  border-radius: 999px;
+  font-size: 13.5px;
+  color: var(--wheat);
+}
+.session-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--growth);
+  flex: none;
+}
+.session-player.is-away { opacity: 0.5; }
+.session-player.is-away .session-dot { background: var(--wheat-faint); }
+
+.session-note { font-size: 13px; color: var(--wheat-dim); margin: 16px 0 0; line-height: 1.55; }
+.session-note.is-bad { color: var(--alarm); }
+
+/* Le chrono : toujours visible, jamais dans le chemin de la souris — et surtout
+   posé sous le bandeau, pour ne pas recouvrir le ruban de campagne, qui est ce
+   qui apprend le calendrier au joueur. */
+.session-timer {
+  position: absolute;
+  top: 92px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 40;
+  display: flex;
+  align-items: baseline;
+  gap: 11px;
+  padding: 9px 20px;
+  background: var(--glass-strong);
+  border: 1px solid var(--hairline);
+  border-radius: 999px;
+  box-shadow: var(--shadow);
+  pointer-events: none;
+}
+.session-timer-label {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  color: var(--brass-dim);
+  font-weight: 600;
+}
+.session-timer-value {
+  font-family: var(--font-display);
+  font-size: 22px;
+  letter-spacing: 0.06em;
+  color: var(--wheat);
+  font-variant-numeric: tabular-nums;
+}
+.session-timer.is-warning { border-color: rgba(201, 162, 39, 0.5); }
+.session-timer.is-warning .session-timer-value { color: var(--wither); }
+.session-timer.is-critical { border-color: rgba(224, 113, 74, 0.6); }
+.session-timer.is-critical .session-timer-value {
+  color: var(--alarm);
+  animation: session-pulse 1s ease-in-out infinite;
+}
+@keyframes session-pulse {
+  50% { opacity: 0.55; }
+}
+
+/* En régie, le chrono n'est plus un bandeau flottant mais le sujet de l'écran. */
+.session-timer-slot { position: relative; height: 96px; margin: 20px 0 6px; }
+.session-timer-slot .session-timer { top: 50%; transform: translate(-50%, -50%); padding: 16px 34px; }
+.session-timer-slot .session-timer-value { font-size: 40px; }
+
+.session-boards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 26px;
+  margin-top: 8px;
+}
+.session-board .result-table { width: 100%; }
+.session-rank {
+  font-family: var(--font-display);
+  color: var(--brass-dim);
+  width: 2.2em;
+}
+.session-board tr.is-first .session-rank { color: var(--brass-bright); }
+.session-board tr.is-first td { color: var(--wheat); font-weight: 600; }
+.session-partial { color: var(--wheat-faint); font-size: 11.5px; }
+.session-basis-note {
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--wheat-dim);
+  border-left: 2px solid var(--brass-dim);
+  padding-left: 14px;
+  margin: 4px 0 20px;
+}
+
+@media (max-width: 620px) {
+  .session-code { font-size: 40px; }
+  .session-boards { gap: 18px; }
+}
+
+/* Le bilan d'une campagne coupée par le chrono : dire pourquoi les charges
+   tombent alors que rien n'a été récolté, sinon le résultat paraît injuste. */
+.result-interrupted {
+  font-size: 13.5px;
+  line-height: 1.6;
+  color: var(--wheat-dim);
+  border-left: 2px solid var(--brass-dim);
+  padding-left: 14px;
+  margin: 14px 0 4px;
+}
+
+/* -------------------------------------------------------- attente du salon */
+
+.mole-block {
+  margin-top: 20px;
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius);
+  overflow: hidden;
+  background: rgba(var(--ink-900) / 0.55);
+}
+.mole-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 11px 15px 9px;
+}
+.mole-score {
+  font-family: var(--font-display);
+  font-size: 21px;
+  color: var(--brass-bright);
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+.mole-stage {
+  position: relative;
+  height: 232px;
+  background: linear-gradient(180deg, #cfd8c8 0%, #e6d9b4 62%, #d9c391 100%);
+}
+.mole-canvas { display: block; width: 100%; height: 100%; }
+.mole-hint {
+  margin: 0;
+  padding: 9px 15px 11px;
+  font-size: 12px;
+  color: var(--wheat-faint);
+  text-align: center;
+}
+
+@media (max-width: 620px) {
+  .mole-stage { height: 178px; }
+}

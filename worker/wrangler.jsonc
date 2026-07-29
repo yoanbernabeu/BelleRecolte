@@ -1,0 +1,13 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "belle-recolte-sessions",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-01-01",
+  "observability": { "enabled": true },
+  "durable_objects": {
+    "bindings": [{ "name": "SESSIONS", "class_name": "SessionRoom" }]
+  },
+  // Le backend SQLite est le seul disponible sur le plan gratuit — et le seul
+  // dont cette application ait besoin : quelques lignes par session.
+  "migrations": [{ "tag": "v1", "new_sqlite_classes": ["SessionRoom"] }]
+}

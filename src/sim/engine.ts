@@ -255,6 +255,11 @@ export interface CampaignResult {
   readonly insurancePayout: number
   readonly yearName: string
   readonly yearDescription: string
+  /**
+   * Tour auquel l'exploitant a cessé de décider, si la campagne a été
+   * interrompue ; `null` si elle est allée à son terme.
+   */
+  readonly interruptedAtTurn: number | null
 }
 
 export class Campaign {
@@ -274,6 +279,8 @@ export class Campaign {
   daysUsed = 0
   readonly log: LogEntry[] = []
   finished = false
+  /** Tour auquel la campagne a été interrompue, `null` si elle est allée au bout. */
+  interruptedAtTurn: number | null = null
 
   /** Stocks d'intrants en hangar, et ce qui est en route. */
   readonly stocks: InputStocks = freshStocks()
@@ -1319,6 +1326,39 @@ export class Campaign {
   }
 
   /**
+   * Clôt une campagne restée en cours, sans que l'exploitant ait pu la mener à
+   * son terme — le chrono d'une session tombe où il veut.
+   *
+   * La campagne est réputée s'être déroulée jusqu'en novembre, mais sans
+   * personne pour la conduire : rien ne pousse, rien n'est moissonné, et seules
+   * tombent les charges qu'on ne décide pas. Le fermage part que la parcelle
+   * produise ou non, la moissonneuse coûte qu'elle serve ou pas, et le
+   * découvert continue de courir jusqu'aux recettes qui ne viendront jamais.
+   *
+   * Les indemnités d'assurance, en revanche, ne sont pas versées : elles
+   * couvrent un rendement effondré par un aléa, pas une récolte que personne
+   * n'est allé chercher. Les primes déjà payées restent dues — c'est le sort
+   * d'une assurance dont on n'a pas déclaré le sinistre.
+   */
+  closeEarly(): void {
+    if (this.finished) return
+
+    this.interruptedAtTurn = this.turn
+    while (this.turn < TURNS_PER_CAMPAIGN) {
+      this.turn += 1
+      this.settleFixedCosts()
+    }
+
+    this.finished = true
+    this.push(
+      'info',
+      null,
+      `Campagne interrompue à ${labelOfTurn(this.interruptedAtTurn)}. Les charges de ` +
+        'structure de la campagne entière restent dues.',
+    )
+  }
+
+  /**
    * Ce qui peut être semé ici, ce tour-ci, et ce qui est refusé.
    *
    * Au premier tour, sur huit parcelles, seules deux ou trois peuvent accueillir
@@ -1551,6 +1591,7 @@ export class Campaign {
       insurancePayout: this.insurancePayout,
       yearName: this.character.name,
       yearDescription: this.character.description,
+      interruptedAtTurn: this.interruptedAtTurn,
     }
   }
 

@@ -10,9 +10,10 @@
 import { describe, expect, it } from 'vitest'
 import { Campaign, type ParcelAdvice } from './engine'
 import { CROPS, type CropId } from './crops'
-import { PARCELS } from './farm'
-import { INPUT_IDS } from './inputs'
+import { PARCELS, TOTAL_AREA_HA } from './farm'
+import { INITIAL_ORDER_COST, INPUT_IDS } from './inputs'
 import { TURNS_PER_CAMPAIGN } from './calendar'
+import { STRUCTURE_COST_PER_HA } from './economics'
 
 /**
  * Assolement type : valide au regard des précédents et des plafonds de rotation,
@@ -41,6 +42,8 @@ interface Conduct {
   readonly hireContractor?: boolean
   /** Recommander du stock avant d'être à sec. */
   readonly restock?: boolean
+  /** Lâcher les commandes à ce tour, comme si le chrono d'une session tombait. */
+  readonly stopAtTurn?: number
 }
 
 const URGENCY_RANK = { urgent: 0, conseille: 1, possible: 2 } as const
@@ -58,6 +61,11 @@ function playCarefully(seed: string, conduct: Conduct = {}): Campaign {
   const campaign = new Campaign(seed)
 
   while (!campaign.finished) {
+    if (conduct.stopAtTurn !== undefined && campaign.turn >= conduct.stopAtTurn) {
+      campaign.closeEarly()
+      break
+    }
+
     const parcels = [...PARCELS.keys()]
 
     // 1. Récolter : une fenêtre manquée, c'est la parcelle perdue. En régie si
@@ -295,5 +303,81 @@ describe('équilibrage de la campagne', () => {
     const campaign = playCarefully('DUREE-1')
     expect(campaign.turn).toBe(TURNS_PER_CAMPAIGN)
     expect(TURNS_PER_CAMPAIGN).toBe(27)
+  })
+})
+
+/**
+ * Clôture anticipée — le cas d'une session chronométrée.
+ *
+ * Quand le chrono tombe, la campagne est réputée s'être déroulée jusqu'au bout
+ * sans l'exploitant. Ce qui est en terre ne vaut rien, mais les charges de
+ * structure de l'année entière restent dues : c'est exactement ce qui empêche
+ * l'immobilisme de payer.
+ */
+describe('campagne interrompue', () => {
+  const STRUCTURE_TOTAL =
+    Math.round((STRUCTURE_COST_PER_HA * TOTAL_AREA_HA) / TURNS_PER_CAMPAIGN) * TURNS_PER_CAMPAIGN
+
+  it('impute la campagne entière à qui n’a rien fait', () => {
+    const campaign = new Campaign('CHRONO-1')
+    campaign.advance()
+    campaign.advance()
+    campaign.advance()
+    campaign.closeEarly()
+
+    const result = campaign.result()
+    expect(campaign.finished).toBe(true)
+    expect(campaign.turn).toBe(TURNS_PER_CAMPAIGN)
+    expect(result.interruptedAtTurn).toBe(3)
+    expect(result.totalTonnes).toBe(0)
+    expect(result.totalRevenue).toBe(0)
+    expect(result.structureCost).toBe(STRUCTURE_TOTAL)
+    // La commande d'été est passée avant que le joueur n'ait rien décidé : même
+    // l'immobilisme total la supporte. C'est le plancher du classement.
+    expect(result.operatingCost).toBe(INITIAL_ORDER_COST)
+    // La trésorerie de départ ne couvre pas tout à fait l'année : même sans
+    // rien faire, on termine en découvert et on paie quelques agios.
+    expect(result.financialCost).toBeGreaterThan(0)
+    expect(result.margin).toBe(
+      -(STRUCTURE_TOTAL + INITIAL_ORDER_COST + result.financialCost),
+    )
+  })
+
+  it('ne fait pas payer moins de charges que d’aller au bout', () => {
+    const stopped = playCarefully('CHRONO-2', { ...FULL_CONDUCT, stopAtTurn: 8 }).result()
+    const complete = playCarefully('CHRONO-2', FULL_CONDUCT).result()
+    expect(stopped.structureCost).toBe(complete.structureCost)
+  })
+
+  it('conserve ce qui a été moissonné avant l’arrêt', () => {
+    const stopped = playCarefully('CHRONO-3', { ...FULL_CONDUCT, stopAtTurn: 24 })
+    const result = stopped.result()
+    expect(result.interruptedAtTurn).toBe(24)
+    expect(result.totalTonnes).toBeGreaterThan(0)
+    expect(result.totalRevenue).toBeGreaterThan(0)
+  })
+
+  it('ne verse aucune indemnité d’assurance', () => {
+    const stopped = playCarefully('CHRONO-4', {
+      ...FULL_CONDUCT,
+      insure: true,
+      stopAtTurn: 10,
+    }).result()
+    expect(stopped.insuranceCost).toBeGreaterThan(0)
+    expect(stopped.insurancePayout).toBe(0)
+  })
+
+  it('laisse l’inactif devant celui qui a semé sans pouvoir récolter', () => {
+    const idle = new Campaign('CHRONO-5')
+    for (let i = 0; i < 6; i++) idle.advance()
+    idle.closeEarly()
+
+    const busy = playCarefully('CHRONO-5', { ...FULL_CONDUCT, stopAtTurn: 6 }).result()
+
+    // Ce n'est pas un défaut, c'est la conséquence assumée du classement à la
+    // marge sur une campagne trop courte pour récolter : d'où la bascule sur les
+    // frais engagés quand personne n'a rien rentré.
+    expect(idle.result().margin).toBeGreaterThan(busy.margin)
+    expect(busy.totalSpent).toBeGreaterThan(idle.result().totalSpent)
   })
 })

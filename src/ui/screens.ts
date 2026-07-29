@@ -3,7 +3,16 @@
 import type { Campaign } from '../sim/engine'
 import { getCrop } from '../sim/crops'
 import { parcelDefinition } from '../sim/farm'
+import { labelOfTurn } from '../sim/calendar'
 import type { Record } from './records'
+
+/**
+ * En session, la campagne ne se rejoue pas : le bilan ne propose qu'une sortie,
+ * vers le classement pour l'organisateur, vers l'accueil pour les autres.
+ */
+export interface ResultOptions {
+  readonly singleActionLabel?: string
+}
 
 function el<K extends keyof HTMLElementTagNameMap>(
   tag: K,
@@ -29,14 +38,29 @@ export class ResultScreen {
     records: readonly Record[],
     onReplay: () => void,
     onNewSeed: () => void,
+    options: ResultOptions = {},
   ) {
     const result = campaign.result()
     this.root = el('div', 'overlay result-screen')
 
     const card = el('div', 'overlay-card wide')
-    card.append(el('h1', 'title', 'Fin de campagne'))
+    card.append(
+      el('h1', 'title', result.interruptedAtTurn === null ? 'Fin de campagne' : 'Temps écoulé'),
+    )
     card.append(el('p', 'year-name', result.yearName))
     card.append(el('p', 'subtitle', result.yearDescription))
+
+    if (result.interruptedAtTurn !== null) {
+      card.append(
+        el(
+          'p',
+          'result-interrupted',
+          `Vous en étiez à ${labelOfTurn(result.interruptedAtTurn)}. La campagne s’est achevée ` +
+            'sans vous : ce qui restait en terre n’a pas été récolté, mais les charges de ' +
+            'structure de l’année entière sont dues.',
+        ),
+      )
+    }
 
     const totals = el('div', 'totals')
     totals.append(
@@ -159,11 +183,17 @@ export class ResultScreen {
     }
 
     const buttons = el('div', 'button-row')
-    const replay = el('button', 'primary-button', 'Rejouer cette année')
-    replay.addEventListener('click', onReplay)
-    const fresh = el('button', 'ghost-button large', 'Nouvelle année')
-    fresh.addEventListener('click', onNewSeed)
-    buttons.append(replay, fresh)
+    if (options.singleActionLabel) {
+      const only = el('button', 'primary-button large', options.singleActionLabel)
+      only.addEventListener('click', onReplay)
+      buttons.append(only)
+    } else {
+      const replay = el('button', 'primary-button', 'Rejouer cette année')
+      replay.addEventListener('click', onReplay)
+      const fresh = el('button', 'ghost-button large', 'Nouvelle année')
+      fresh.addEventListener('click', onNewSeed)
+      buttons.append(replay, fresh)
+    }
     card.append(buttons)
 
     this.root.append(card)
